@@ -1,12 +1,21 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextRequest } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+export default clerkMiddleware(
+  async (auth, req: NextRequest) => {
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+  },
+  {
+    organizationSyncOptions: {
+      organizationPatterns: ["/org/:slug", "/org/:slug/(.*)"],
+      personalAccountPatterns: ["/usr", "/usr/(.*)"],
+    },
   }
-});
+);
 
 export const config = {
   matcher: [
