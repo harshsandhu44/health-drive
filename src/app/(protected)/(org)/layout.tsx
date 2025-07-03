@@ -15,10 +15,8 @@ const OrgLayout = ({ children }: { children: React.ReactNode }) => {
       <OrgSidebar variant="inset" />
       <SidebarInset>
         <OrgHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="container py-4 md:py-6">{children}</div>
-          </div>
+        <div className="@container/main container max-h-[calc(100vh-var(--header-height))] py-4 md:py-6 flex flex-1 flex-col gap-2 overflow-y-auto">
+          {children}
         </div>
       </SidebarInset>
     </SidebarProvider>
