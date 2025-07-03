@@ -6,8 +6,8 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { UserButton, useUser } from "@clerk/nextjs";
 
 export const OrgHeader = () => {
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const { user } = useUser();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const org = user?.organizationMemberships[0];
 
   return (
