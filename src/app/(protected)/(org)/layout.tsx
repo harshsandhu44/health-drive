@@ -1,3 +1,4 @@
+import { OrgHeader } from "@/components/shared/headers";
 import { OrgSidebar } from "@/components/shared/sidebars";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -13,7 +14,7 @@ const OrgLayout = ({ children }: { children: React.ReactNode }) => {
     >
       <OrgSidebar variant="inset" />
       <SidebarInset>
-        {/* <SiteHeader /> */}
+        <OrgHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="py-4 md:py-6">{children}</div>
