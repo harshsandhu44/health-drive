@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department and staff organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and metadata, Supabase for the database, Twilio for messaging, Paytm for billing, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department and staff organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging, Paytm for billing, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations.
 
 ## 2. Objectives
 
@@ -51,11 +51,11 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Functionality**:
   - Add/edit staff profiles: name, email, phone, role (doctor/staff), department (optional).
   - Role-based access: Admins manage all staff; doctors/staff view schedules.
-  - Staff metadata in Clerk for role and facility affiliation.
+  - Staff data stored in Supabase, linked to Clerk user IDs.
 - **Technical Requirements**:
-  - Clerk user public metadata: `{ role: "admin" | "doctor" | "staff", facility_id: string }`.
-  - Supabase table: `staff_profiles` (`id`, `user_id` (Clerk ID), `name`, `phone`, `department_id` (nullable), `created_at`, `updated_at`).
-  - Sync Clerk user creation with Supabase via webhook.
+  - Supabase table: `staff_profiles` (`id`, `user_id` (Clerk ID), `name`, `phone`, `role` (admin/doctor/staff), `facility_id`, `department_id` (nullable), `created_at`, `updated_at`).
+  - Sync Clerk user creation with Supabase via webhook to populate `staff_profiles`.
+  - Role-based access enforced via Supabase RLS and Clerk authentication.
 
 ### 4.4 Patient Messaging
 
@@ -93,7 +93,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **Frontend**: Next.js (App Router, TypeScript, src directory), shadcn/ui, Tailwind CSS, Framer Motion.
 - **Backend**: Supabase (PostgreSQL, edge functions).
-- **Authentication**: Clerk.js with user and organization metadata.
+- **Authentication**: Clerk.js with organization metadata.
 - **Messaging**: Twilio for SMS.
 - **Billing**: Paytm Payment Gateway for subscriptions.
 - **Hosting**: Vercel for Next.js, Supabase for database.
@@ -104,7 +104,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **facilities**: `id`, `name`, `address`, `phone`, `created_at`, `updated_at`.
 - **departments**: `id`, `name`, `facility_id`, `created_at`, `updated_at`.
-- **staff_profiles**: `id`, `user_id` (Clerk ID), `name`, `phone`, `department_id` (nullable), `created_at`, `updated_at`.
+- **staff_profiles**: `id`, `user_id` (Clerk ID), `name`, `phone`, `role` (admin/doctor/staff), `facility_id`, `department_id` (nullable), `created_at`, `updated_at`.
 - **patients**: `id`, `name`, `email`, `phone`, `created_at`, `updated_at`.
 - **appointments**: `id`, `patient_id`, `doctor_id`, `date`, `time`, `status`, `created_at`, `updated_at`.
 - **message_logs**: `id`, `appointment_id`, `patient_phone`, `message`, `status`, `sent_at`.
@@ -112,13 +112,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ### Clerk Metadata
 
-- **User Public Metadata**:
-  ```typescript
-  interface UserPublicMetadata {
-    role: "admin" | "doctor" | "staff";
-    facility_id: string;
-  }
-  ```
+- **User Metadata**: None (removed).
 - **Organization Public Metadata**:
   ```typescript
   interface OrganizationPublicMetadata {
@@ -152,7 +146,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Clerk for authentication and role-based access control.
   - Supabase Row-Level Security (RLS) by `facility_id` and user role.
   - Secure Paytm API credentials with environment variables.
-  - Restrict access to `OrganizationPrivateMetadata` (e.g., `transaction_id`) to authorized API calls.
+  - Restrict access to `OrganizationPrivateMetadata` (`transaction_id`) to authorized API calls.
 - **Performance**:
   - Optimize Next.js with SSG/SSR.
   - Supabase queries with indexes.
@@ -167,9 +161,10 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 9. Integration Details
 
 - **Clerk-Supabase**:
-  - Sync user/organization data with Supabase via webhooks.
-  - Store `UserPublicMetadata` and `OrganizationPublicMetadata` in Clerk; sync `facility_id`, `address`, `phone` to Supabase `facilities` table.
+  - Sync organization data with Supabase via webhooks.
+  - Store `OrganizationPublicMetadata` in Clerk; sync `address`, `phone`, `plan`, `plan_expires_at`, `plan_status` to Supabase `facilities` table.
   - Securely manage `OrganizationPrivateMetadata` (`transaction_id`) for billing verification.
+  - Use Clerk user IDs to link with Supabase `staff_profiles` for role and facility data.
 - **Twilio**:
   - Twilio SDK in Next.js API routes or Supabase edge functions.
   - Secure credentials in environment variables.
@@ -186,9 +181,9 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ### Phase 1: Setup and Authentication (2 weeks)
 
 - Set up Next.js with TypeScript, Tailwind CSS, shadcn/ui.
-- Integrate Clerk for user/organization authentication with updated metadata interfaces.
+- Integrate Clerk for organization authentication with metadata interfaces.
 - Configure Supabase with schema and RLS.
-- Build login/signup with role and organization plan selection.
+- Build login/signup with organization plan selection.
 
 ### Phase 2: Core Features (4 weeks)
 
@@ -219,7 +214,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ## 12. Risks and Mitigations
 
-- **Risk**: Clerk-Supabase metadata sync complexity.
+- **Risk**: Clerk-Supabase sync complexity.
   - **Mitigation**: Follow Clerk’s integration guide and test webhooks.
 - **Risk**: Paytm transaction failures.
   - **Mitigation**: Implement retry logic and monitor Paytm webhook status.
