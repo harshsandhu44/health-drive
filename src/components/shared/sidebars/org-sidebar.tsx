@@ -40,25 +40,29 @@ export const OrgSidebar = ({
 }: React.ComponentProps<typeof Sidebar>) => {
   const { user } = useUser();
   const isOrgAdmin = user?.organizationMemberships[0].role === "org:admin";
+  const orgMetadata =
+    user?.organizationMemberships[0].organization.publicMetadata;
+  const isOrgPro =
+    orgMetadata?.plan === "pro" || orgMetadata?.plan === "business";
 
   const orgNav = [
     {
       label: "Departments",
       href: "/departments",
       icon: Building2Icon,
-      disabled: !isOrgAdmin,
+      disabled: !isOrgPro,
     },
     {
       label: "Doctors",
       href: "/doctors",
       icon: User2Icon,
-      disabled: !isOrgAdmin,
+      disabled: !isOrgPro,
     },
     {
       label: "Staff",
       href: "/staff",
       icon: Users2Icon,
-      disabled: !isOrgAdmin,
+      disabled: !isOrgPro,
     },
   ];
 

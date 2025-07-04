@@ -1,11 +1,6 @@
 export {};
 
 declare global {
-  interface UserPublicMetadata {
-    role: "admin" | "doctor" | "staff";
-    facility_id: string;
-  }
-
   interface OrganizationPublicMetadata {
     address: string;
     phone: string;

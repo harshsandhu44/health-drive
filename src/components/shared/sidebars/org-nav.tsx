@@ -28,7 +28,7 @@ export const OrgNav = ({ items }: OrgNavProps) => {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-6">
-        <SidebarMenu className="p-2 bg-muted rounded-lg">
+        <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
