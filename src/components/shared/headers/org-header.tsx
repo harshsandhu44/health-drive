@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -9,6 +10,7 @@ export const OrgHeader = () => {
   const { user } = useUser();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const org = user?.organizationMemberships[0];
+  const orgMetadata = org?.organization.publicMetadata;
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -21,6 +23,10 @@ export const OrgHeader = () => {
         <h1 className="text-sm font-bold line-clamp-1">
           {org?.organization.name}
         </h1>
+        <Badge variant="outline" className="capitalize">
+          {orgMetadata?.plan}
+        </Badge>
+
         <div className="ml-auto flex items-center gap-2">
           <UserButton showName={!isMobile} />
         </div>
