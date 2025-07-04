@@ -32,6 +32,7 @@ export const MainNav = ({ items }: MainNavProps) => {
           <SidebarMenuItem className="flex items-center gap-2">
             <SidebarMenuButton
               tooltip="Create Appointment"
+              onClick={() => router.push("/appointments/new")}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
                 "justify-start"
@@ -42,7 +43,7 @@ export const MainNav = ({ items }: MainNavProps) => {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SidebarMenu className="p-2 bg-muted rounded-lg">
+        <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton
