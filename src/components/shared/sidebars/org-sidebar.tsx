@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,6 +14,8 @@ import { cn } from "@/lib/utils";
 import {
   Building2Icon,
   CalendarIcon,
+  CreditCardIcon,
+  HelpCircleIcon,
   LayoutDashboardIcon,
   User2Icon,
   Users2Icon,
@@ -21,6 +24,7 @@ import Link from "next/link";
 import { MainNav } from "./main-nav";
 import { OrgNav } from "./org-nav";
 import { useUser } from "@clerk/nextjs";
+import { OrgFooter } from "./org-footer";
 
 const mainNav = [
   {
@@ -66,6 +70,20 @@ export const OrgSidebar = ({
     },
   ];
 
+  const footerNav = [
+    {
+      label: "Help",
+      href: "/help",
+      icon: HelpCircleIcon,
+    },
+    {
+      label: "Billing",
+      href: "/billing",
+      icon: CreditCardIcon,
+      disabled: !isOrgAdmin,
+    },
+  ];
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -87,6 +105,10 @@ export const OrgSidebar = ({
         <MainNav items={mainNav} />
         {isOrgAdmin && <OrgNav items={orgNav} />}
       </SidebarContent>
+
+      <SidebarFooter>
+        <OrgFooter items={footerNav} />
+      </SidebarFooter>
     </Sidebar>
   );
 };
