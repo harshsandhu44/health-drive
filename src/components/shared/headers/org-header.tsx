@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton, useUser } from "@clerk/nextjs";
 
 export const OrgHeader = () => {
   const { user } = useUser();
@@ -20,9 +20,7 @@ export const OrgHeader = () => {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-sm font-bold line-clamp-1">
-          {org?.organization.name}
-        </h1>
+        <OrganizationSwitcher hidePersonal />
         <Badge variant="outline" className="capitalize">
           {orgMetadata?.plan}
         </Badge>
