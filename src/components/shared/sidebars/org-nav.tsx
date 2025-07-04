@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
   SidebarGroup,
@@ -9,10 +10,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { PlusCircleIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
-interface MainNavProps {
+interface OrgNavProps {
   items: {
     label: string;
     href: string;
@@ -21,27 +21,13 @@ interface MainNavProps {
   }[];
 }
 
-export const MainNav = ({ items }: MainNavProps) => {
+export const OrgNav = ({ items }: OrgNavProps) => {
   const pathname = usePathname();
   const router = useRouter();
 
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-6">
-        <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Create Appointment"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "justify-start"
-              )}
-            >
-              <PlusCircleIcon />
-              <span>Create Appointment</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
         <SidebarMenu className="p-2 bg-muted rounded-lg">
           {items.map((item) => (
             <SidebarMenuItem key={item.label}>
@@ -59,6 +45,11 @@ export const MainNav = ({ items }: MainNavProps) => {
               >
                 {item.icon && <item.icon />}
                 <span>{item.label}</span>
+                {item.disabled && (
+                  <div className="ml-auto">
+                    <Badge variant="outline">PRO</Badge>
+                  </div>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

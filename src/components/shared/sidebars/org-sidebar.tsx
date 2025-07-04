@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MainNav } from "./main-nav";
+import { OrgNav } from "./org-nav";
+import { useUser } from "@clerk/nextjs";
 
 const mainNav = [
   {
@@ -31,26 +33,35 @@ const mainNav = [
     href: "/appointments",
     icon: CalendarIcon,
   },
-  {
-    label: "Departments",
-    href: "/departments",
-    icon: Building2Icon,
-  },
-  {
-    label: "Doctors",
-    href: "/doctors",
-    icon: User2Icon,
-  },
-  {
-    label: "Staff",
-    href: "/staff",
-    icon: Users2Icon,
-  },
 ];
 
 export const OrgSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
+  const { user } = useUser();
+  const isOrgAdmin = user?.organizationMemberships[0].role === "org:admin";
+
+  const orgNav = [
+    {
+      label: "Departments",
+      href: "/departments",
+      icon: Building2Icon,
+      disabled: !isOrgAdmin,
+    },
+    {
+      label: "Doctors",
+      href: "/doctors",
+      icon: User2Icon,
+      disabled: !isOrgAdmin,
+    },
+    {
+      label: "Staff",
+      href: "/staff",
+      icon: Users2Icon,
+      disabled: !isOrgAdmin,
+    },
+  ];
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -70,6 +81,7 @@ export const OrgSidebar = ({
 
       <SidebarContent>
         <MainNav items={mainNav} />
+        {isOrgAdmin && <OrgNav items={orgNav} />}
       </SidebarContent>
     </Sidebar>
   );
