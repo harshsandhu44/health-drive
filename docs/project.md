@@ -2,14 +2,14 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging, Paytm for billing, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. Organization and user data are managed in Clerk, with no Supabase tables for facilities or staff profiles.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. Organization and user data are managed in Clerk, with no Supabase tables for facilities or staff profiles. Billing is handled manually by admins setting plan details in Clerk, with records logged in Supabase.
 
 ## 2. Objectives
 
 - Enable healthcare facilities to manage patient appointments efficiently.
 - Organize departments within facilities.
 - Facilitate appointment-related communication with patients via SMS.
-- Provide subscription plans (Starter, Pro, Business) managed via a custom Paytm-based billing system.
+- Provide subscription plans (Starter, Pro, Business) managed manually by admins.
 - Deliver a secure, scalable, and user-friendly platform for healthcare administrators.
 
 ## 3. Target Audience
@@ -29,7 +29,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Appointment status: Pending, Confirmed, Cancelled, Completed.
   - View appointments by day, week, or month in a calendar interface.
 - **Technical Requirements**:
-  - Store appointments in Supabase: `id`, `patient_id`, `doctor_id` (Clerk user ID), `date`, `time`, `status`, `organization_id` (Clerk organization ID), `created_at`, `updated_at`.
+  - Store appointments in Supabase: `id`, `patient_id`, `doctor_id` (Clerk user ID), `date`, `time`, `status`, `organization_id` (Clerk org ID), `created_at`, `updated_at`.
   - Calendar UI with shadcn/ui components and Tailwind CSS.
   - Framer Motion for smooth calendar navigation transitions.
 
@@ -70,21 +70,20 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ### 4.5 Subscription Plan Management
 
-- **Description**: Facilities subscribe to Starter, Pro, or Business plans, stored in Clerk organization metadata, with billing via Paytm.
+- **Description**: Facilities subscribe to Starter, Pro, or Business plans, manually set by admins in Clerk organization metadata, with records logged in Supabase.
 - **Functionality**:
   - **Plans**:
     - **Starter**: Up to 5 staff, 100 appointments/month, 100 SMS/month.
     - **Pro**: Up to 20 staff, 500 appointments/month, 500 SMS/month, priority support.
     - **Business**: Unlimited staff, 2000 appointments/month, 2000 SMS/month, dedicated support.
-  - Admins select/change plans via a billing dashboard.
+  - Admins manually update plan details (`plan`, `plan_expires_at`, `plan_status`, `transaction_id`) via an admin UI.
   - Plan limits enforced (e.g., block appointment/staff creation if limit exceeded).
   - Plan status (`active`, `inactive`, `expired`) updated based on `plan_expires_at`.
-  - Paytm for monthly subscription payments with auto-renewal.
 - **Technical Requirements**:
   - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter" | "pro" | "business", plan_expires_at: string, plan_status: "active" | "inactive" | "expired" }`.
   - Clerk organization private metadata: `{ transaction_id: string }`.
   - Supabase table: `billing_logs` (`id`, `organization_id`, `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`).
-  - Paytm Payment Gateway integration in Next.js API routes for payment initiation and webhook for transaction verification.
+  - Admin UI for manual plan updates using Clerk API.
   - Supabase edge function to check `plan_expires_at` daily and update `plan_status` via Clerk API.
   - UI for plan selection, billing history, and plan status using shadcn/ui components.
 
@@ -94,7 +93,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Backend**: Supabase (PostgreSQL, edge functions).
 - **Authentication**: Clerk.js with organization metadata and membership roles.
 - **Messaging**: Twilio for SMS.
-- **Billing**: Paytm Payment Gateway for subscriptions.
+- **Billing**: Manual plan assignment via Clerk API (Paytm deferred to future phase).
 - **Hosting**: Vercel for Next.js, Supabase for database.
 
 ## 6. Data Model
@@ -134,7 +133,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Departments Page**: Department CRUD operations.
 - **Staff Page**: Directory of organization members (via Clerk API) with role filters.
 - **Messaging Page**: Message logs and manual messaging interface.
-- **Billing Page**: Plan selection, current plan details, billing history, Paytm payment initiation.
+- **Billing Page**: View current plan details, billing history; admin UI to manually update plan details (`plan`, `plan_expires_at`, `plan_status`, `transaction_id`).
 - **UI Components**: shadcn/ui for forms, tables, modals; Tailwind CSS for styling; Framer Motion for animations.
 
 ## 8. Non-Functional Requirements
@@ -142,15 +141,13 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Security**:
   - Clerk for authentication and role-based access via organization memberships.
   - Supabase Row-Level Security (RLS) using Clerk JWT (`auth.jwt()->>'sub'`) and organization ID.
-  - Secure Paytm API credentials with environment variables.
   - Restrict `OrganizationPrivateMetadata` (`transaction_id`) to server-side access.
 - **Performance**:
   - Optimize Next.js with SSG/SSR.
   - Supabase queries with indexes on `organization_id`.
-  - Paytm webhook for real-time transaction updates.
 - **Scalability**:
   - Supabase for database scalability.
-  - Twilio and Paytm for reliable messaging and billing.
+  - Twilio for reliable messaging.
 - **Accessibility**:
   - WCAG 2.1 compliance.
   - Keyboard-navigable shadcn/ui components.
@@ -164,9 +161,10 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Twilio**:
   - Twilio SDK in Next.js API routes or Supabase edge functions.
   - Secure credentials in environment variables.
-- **Paytm**:
-  - Paytm Payment Gateway for subscription payments.
-  - API routes for payment initiation and webhook to update `billing_logs` and Clerk metadata (`transaction_id`, `plan_expires_at`, `plan_status`).
+- **Billing**:
+  - Manual plan updates via Clerk API in admin UI.
+  - Webhook to log plan changes in `billing_logs`.
+  - Paytm integration deferred to future phase.
 - **shadcn/ui & Tailwind**:
   - shadcn/ui for consistent design.
   - Tailwind config with healthcare-themed colors.
@@ -179,7 +177,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - Integrate Clerk for organization authentication and membership roles.
 - Configure Supabase with schema, RLS, and `@supabase/ssr`.
 - Build login/signup with organization membership flows.
-- Set up Clerk webhooks for organization and user events.
+- Set up Clerk webhooks for organization events.
 
 ### Phase 2: Core Features (4 weeks)
 
@@ -189,12 +187,12 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ### Phase 3: Messaging and Billing (3 weeks)
 
 - Integrate Twilio for SMS.
-- Implement Paytm billing with plan selection and transaction logging.
+- Implement admin UI for manual plan updates in Clerk.
 - Add Framer Motion animations.
 
 ### Phase 4: Testing and Launch (2 weeks)
 
-- Test Clerk, Supabase, Twilio, and Paytm integrations.
+- Test Clerk, Supabase, and Twilio integrations.
 - Verify RLS and role-based access via Clerk API.
 - Conduct user acceptance testing.
 - Deploy to Vercel and Supabase.
@@ -204,16 +202,16 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **User Adoption**: 10 facilities onboarded within 3 months.
 - **Engagement**: 80% of facilities scheduling 50+ appointments/month.
-- **Billing Success**: 90% successful Paytm transactions.
-- **Reliability**: 99% uptime for messaging and billing.
+- **Billing Accuracy**: 100% accuracy in manual plan assignments.
+- **Reliability**: 99% uptime for messaging and database.
 - **User Satisfaction**: CSAT score of 4/5.
 
 ## 12. Risks and Mitigations
 
 - **Risk**: Clerk-Supabase sync complexity.
   - **Mitigation**: Use Clerk webhooks and test thoroughly.
-- **Risk**: Paytm transaction failures.
-  - **Mitigation**: Implement retry logic and monitor webhook status.
+- **Risk**: Manual billing errors.
+  - **Mitigation**: Implement admin UI with validation and audit logs in `billing_logs`.
 - **Risk**: Role-based access without user metadata.
   - **Mitigation**: Use Clerk API to fetch membership roles; implement role-checking endpoint.
 - **Risk**: UI/UX complexity.
@@ -221,6 +219,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ## 13. Future Enhancements
 
+- Integrate Paytm for online payments.
 - Patient self-scheduling portal.
 - EHR integrations (e.g., Epic, Cerner).
 - Advanced analytics.
@@ -231,4 +230,4 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - [Clerk-Supabase Integration](https://clerk.com/docs/integrations/databases/supabase)
 - [Clerk Webhooks](https://clerk.com/docs/integrations/webhooks)
 - [Supabase Next.js Quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
-- Paytm Payment Gateway, Twilio, shadcn/ui, Framer Motion documentation.
+- Twilio, shadcn/ui, Framer Motion documentation.
