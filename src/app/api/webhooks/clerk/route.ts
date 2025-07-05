@@ -1,8 +1,8 @@
 import { Webhook } from "svix";
-import { createServerClient } from "@/lib/db/server";
+import { createClient } from "@supabase/supabase-js"; // Use direct client for webhooks
 import { NextResponse } from "next/server";
 
-export const POST = async (req: Request) => {
+export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
   const webhook = new Webhook(webhookSecret);
 
@@ -24,33 +24,18 @@ export const POST = async (req: Request) => {
   }
 
   const { type, data } = payload;
-  const supabase = await createServerClient();
+  // Use direct Supabase client without Clerk auth for webhooks
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY! // Use service role key for server-side ops
+  );
 
   try {
     switch (type) {
-      case "organization.created": {
-        const { id, name, public_metadata, created_by } = data;
-        const { phone } = public_metadata;
-
-        // Create admin profile for the organization creator
-        if (created_by) {
-          await supabase.from("staff_profiles").insert({
-            user_id: created_by,
-            name: name || "Admin User",
-            phone: phone || "",
-            role: "admin",
-            organization_id: id,
-          });
-        }
-
-        break;
-      }
-
       case "organization.updated": {
         const { id, public_metadata } = data;
         const { plan, plan_expires_at, plan_status } = public_metadata;
 
-        // Update billing_logs if plan changed
         if (plan && plan_expires_at && plan_status) {
           const { data: existingLog } = await supabase
             .from("billing_logs")
@@ -70,13 +55,11 @@ export const POST = async (req: Request) => {
             });
           }
         }
-
         break;
       }
 
       case "organization.deleted": {
         const { id } = data;
-        // ON DELETE CASCADE handles related records
         await supabase
           .from("staff_profiles")
           .delete()
@@ -86,33 +69,6 @@ export const POST = async (req: Request) => {
         await supabase.from("appointments").delete().eq("organization_id", id);
         await supabase.from("message_logs").delete().eq("organization_id", id);
         await supabase.from("billing_logs").delete().eq("organization_id", id);
-
-        break;
-      }
-
-      case "user.created": {
-        const {
-          id: userId,
-          first_name,
-          last_name,
-          phone_numbers,
-          organization_memberships,
-        } = data;
-        const name =
-          `${first_name || ""} ${last_name || ""}`.trim() || "Unnamed User";
-        const phone = phone_numbers[0]?.phone_number || "";
-        const organizationId = organization_memberships?.[0]?.organization.id;
-
-        if (organizationId) {
-          await supabase.from("staff_profiles").insert({
-            user_id: userId,
-            name,
-            phone,
-            role: "staff",
-            organization_id: organizationId,
-          });
-        }
-
         break;
       }
 
@@ -128,4 +84,4 @@ export const POST = async (req: Request) => {
       { status: 500 }
     );
   }
-};
+}
