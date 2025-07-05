@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const GET = async () => {
   const response = await fetch(
-    `https://${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/check-plan-status`,
+    `https://ziccodamvuabudmpfija.supabase.co/functions/v1/check-plan-status`,
     {
       method: "POST",
       headers: {
