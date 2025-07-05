@@ -2,12 +2,12 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department and staff organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging, Paytm for billing, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, patient communication, and subscription plan management. The MVP leverages Next.js with TypeScript, Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging, Paytm for billing, shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. Organization and user data are managed in Clerk, with no Supabase tables for facilities or staff profiles.
 
 ## 2. Objectives
 
 - Enable healthcare facilities to manage patient appointments efficiently.
-- Organize departments and staff (doctors and non-departmental staff) within the facility.
+- Organize departments within facilities.
 - Facilitate appointment-related communication with patients via SMS.
 - Provide subscription plans (Starter, Pro, Business) managed via a custom Paytm-based billing system.
 - Deliver a secure, scalable, and user-friendly platform for healthcare administrators.
@@ -24,50 +24,49 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **Description**: Facilities can create, update, cancel, and view patient appointments.
 - **Functionality**:
-  - Admins/staff schedule appointments with a doctor, specifying date, time, and patient details.
+  - Admins and doctors schedule appointments with a doctor (identified by Clerk user ID), specifying date, time, and patient details.
   - Patients identified by name, email, and phone number.
   - Appointment status: Pending, Confirmed, Cancelled, Completed.
   - View appointments by day, week, or month in a calendar interface.
 - **Technical Requirements**:
-  - Store appointments in Supabase: `id`, `patient_id`, `doctor_id`, `date`, `time`, `status`, `created_at`, `updated_at`.
+  - Store appointments in Supabase: `id`, `patient_id`, `doctor_id` (Clerk user ID), `date`, `time`, `status`, `organization_id` (Clerk organization ID), `created_at`, `updated_at`.
   - Calendar UI with shadcn/ui components and Tailwind CSS.
   - Framer Motion for smooth calendar navigation transitions.
 
 ### 4.2 Department Management
 
-- **Description**: Facilities can organize departments to group doctors and staff.
+- **Description**: Facilities can organize departments to group activities.
 - **Functionality**:
   - Create, update, and delete departments (e.g., Cardiology, Pediatrics).
-  - Assign doctors and staff to departments.
-  - View department details, including assigned personnel.
+  - View department details.
 - **Technical Requirements**:
-  - Supabase table: `departments` (`id`, `name`, `facility_id`, `created_at`, `updated_at`).
-  - Junction table: `department_assignments` (`department_id`, `user_id`, `role`).
+  - Supabase table: `departments` (`id`, `name`, `organization_id`, `created_at`, `updated_at`).
   - UI with shadcn/ui for department CRUD operations.
+  - Role-based access via Clerk organization memberships (`admin` for management, `member` for viewing).
 
 ### 4.3 Staff Management
 
-- **Description**: Manage doctors and staff, with or without department affiliation.
+- **Description**: Manage doctors and staff via Clerk organization memberships.
 - **Functionality**:
-  - Add/edit staff profiles: name, email, phone, role (doctor/staff), department (optional).
-  - Role-based access: Admins manage all staff; doctors/staff view schedules.
-  - Staff data stored in Supabase, linked to Clerk user IDs.
+  - Admins invite users to the organization with roles (`admin`, `member`).
+  - Doctors and staff view their schedules; admins manage all staff.
+  - No Supabase table for staff; data stored in Clerk (user details, organization membership roles).
 - **Technical Requirements**:
-  - Supabase table: `staff_profiles` (`id`, `user_id` (Clerk ID), `name`, `phone`, `role` (admin/doctor/staff), `facility_id`, `department_id` (nullable), `created_at`, `updated_at`).
-  - Sync Clerk user creation with Supabase via webhook to populate `staff_profiles`.
-  - Role-based access enforced via Supabase RLS and Clerk authentication.
+  - Clerk organization membership roles: `admin` (full access), `member` (doctors/staff with limited access).
+  - Clerk API to fetch user details (name, phone) and membership roles.
+  - Sync user creation with organization membership via Clerk webhooks.
 
 ### 4.4 Patient Messaging
 
 - **Description**: Send appointment reminders and updates via SMS.
 - **Functionality**:
   - Automated SMS for confirmations, reminders (24 hours prior), and cancellations.
-  - Manual messaging by admins/staff for custom updates.
+  - Manual messaging by admins/doctors for custom updates.
   - Message templates (e.g., "Your appointment with Dr. [Name] on [Date] at [Time] is confirmed.").
 - **Technical Requirements**:
   - Twilio API for SMS delivery.
   - Supabase edge function to trigger Twilio on appointment CRUD.
-  - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `sent_at`).
+  - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `organization_id`, `created_at`).
 
 ### 4.5 Subscription Plan Management
 
@@ -82,18 +81,18 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Plan status (`active`, `inactive`, `expired`) updated based on `plan_expires_at`.
   - Paytm for monthly subscription payments with auto-renewal.
 - **Technical Requirements**:
-  - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter" | "pro" | "business", plan_expires_at: Date, plan_status: "active" | "inactive" | "expired" }`.
+  - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter" | "pro" | "business", plan_expires_at: string, plan_status: "active" | "inactive" | "expired" }`.
   - Clerk organization private metadata: `{ transaction_id: string }`.
-  - Supabase table: `billing_logs` (`id`, `facility_id`, `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`).
+  - Supabase table: `billing_logs` (`id`, `organization_id`, `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`).
   - Paytm Payment Gateway integration in Next.js API routes for payment initiation and webhook for transaction verification.
-  - Cron job or Supabase edge function to check `plan_expires_at` daily and update `plan_status` to `expired` if past due.
+  - Supabase edge function to check `plan_expires_at` daily and update `plan_status` via Clerk API.
   - UI for plan selection, billing history, and plan status using shadcn/ui components.
 
 ## 5. Technical Stack
 
 - **Frontend**: Next.js (App Router, TypeScript, src directory), shadcn/ui, Tailwind CSS, Framer Motion.
 - **Backend**: Supabase (PostgreSQL, edge functions).
-- **Authentication**: Clerk.js with organization metadata.
+- **Authentication**: Clerk.js with organization metadata and membership roles.
 - **Messaging**: Twilio for SMS.
 - **Billing**: Paytm Payment Gateway for subscriptions.
 - **Hosting**: Vercel for Next.js, Supabase for database.
@@ -102,24 +101,22 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ### Supabase Tables
 
-- **facilities**: `id`, `name`, `address`, `phone`, `created_at`, `updated_at`.
-- **departments**: `id`, `name`, `facility_id`, `created_at`, `updated_at`.
-- **staff_profiles**: `id`, `user_id` (Clerk ID), `name`, `phone`, `role` (admin/doctor/staff), `facility_id`, `department_id` (nullable), `created_at`, `updated_at`.
-- **patients**: `id`, `name`, `email`, `phone`, `created_at`, `updated_at`.
-- **appointments**: `id`, `patient_id`, `doctor_id`, `date`, `time`, `status`, `created_at`, `updated_at`.
-- **message_logs**: `id`, `appointment_id`, `patient_phone`, `message`, `status`, `sent_at`.
-- **billing_logs**: `id`, `facility_id`, `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`.
+- **departments**: `id` (UUID), `name` (TEXT), `organization_id` (UUID, Clerk org ID), `created_at`, `updated_at`.
+- **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT), `phone` (TEXT), `organization_id` (UUID), `created_at`, `updated_at`.
+- **appointments**: `id` (UUID), `patient_id` (UUID), `doctor_id` (TEXT, Clerk user ID), `date` (DATE), `time` (TIME), `status` (TEXT), `organization_id` (UUID), `created_at`, `updated_at`.
+- **message_logs**: `id` (UUID), `appointment_id` (UUID), `patient_phone` (TEXT), `message` (TEXT), `status` (TEXT), `organization_id` (UUID), `created_at`.
+- **billing_logs**: `id` (UUID), `organization_id` (UUID), `plan` (TEXT), `amount` (NUMERIC), `paytm_transaction_id` (TEXT), `status` (TEXT), `created_at`.
 
 ### Clerk Metadata
 
-- **User Metadata**: None (removed).
+- **User Metadata**: None.
 - **Organization Public Metadata**:
   ```typescript
   interface OrganizationPublicMetadata {
     address: string;
     phone: string;
     plan: "starter" | "pro" | "business";
-    plan_expires_at: Date;
+    plan_expires_at: string;
     plan_status: "active" | "inactive" | "expired";
   }
   ```
@@ -132,24 +129,24 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ## 7. User Interface
 
-- **Dashboard**: Overview of appointments, department stats, staff availability, and plan status (with `plan_expires_at` and `plan_status`).
+- **Dashboard**: Overview of appointments, department stats, plan status (`plan_expires_at`, `plan_status`), and staff (via Clerk API).
 - **Appointments Page**: Calendar view, scheduling form, appointment list.
-- **Departments Page**: Department CRUD and staff assignments.
-- **Staff Page**: Staff directory with role filters and profile management.
-- **Messaging Page**: Message logs and manual messaging.
-- **Billing Page**: Plan selection, current plan details (including `plan_expires_at` and `plan_status`), billing history, and Paytm payment initiation.
+- **Departments Page**: Department CRUD operations.
+- **Staff Page**: Directory of organization members (via Clerk API) with role filters.
+- **Messaging Page**: Message logs and manual messaging interface.
+- **Billing Page**: Plan selection, current plan details, billing history, Paytm payment initiation.
 - **UI Components**: shadcn/ui for forms, tables, modals; Tailwind CSS for styling; Framer Motion for animations.
 
 ## 8. Non-Functional Requirements
 
 - **Security**:
-  - Clerk for authentication and role-based access control.
-  - Supabase Row-Level Security (RLS) by `facility_id` and user role.
+  - Clerk for authentication and role-based access via organization memberships.
+  - Supabase Row-Level Security (RLS) using Clerk JWT (`auth.jwt()->>'sub'`) and organization ID.
   - Secure Paytm API credentials with environment variables.
-  - Restrict access to `OrganizationPrivateMetadata` (`transaction_id`) to authorized API calls.
+  - Restrict `OrganizationPrivateMetadata` (`transaction_id`) to server-side access.
 - **Performance**:
   - Optimize Next.js with SSG/SSR.
-  - Supabase queries with indexes.
+  - Supabase queries with indexes on `organization_id`.
   - Paytm webhook for real-time transaction updates.
 - **Scalability**:
   - Supabase for database scalability.
@@ -161,17 +158,15 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 9. Integration Details
 
 - **Clerk-Supabase**:
-  - Sync organization data with Supabase via webhooks.
-  - Store `OrganizationPublicMetadata` in Clerk; sync `address`, `phone`, `plan`, `plan_expires_at`, `plan_status` to Supabase `facilities` table.
-  - Securely manage `OrganizationPrivateMetadata` (`transaction_id`) for billing verification.
-  - Use Clerk user IDs to link with Supabase `staff_profiles` for role and facility data.
+  - Sync organization data via Clerk webhooks to update `billing_logs`.
+  - Use Clerk REST API to fetch organization membership roles (`admin`, `member`) for access control.
+  - Store organization data (`address`, `phone`, `plan`, etc.) in Clerk metadata.
 - **Twilio**:
   - Twilio SDK in Next.js API routes or Supabase edge functions.
   - Secure credentials in environment variables.
 - **Paytm**:
   - Paytm Payment Gateway for subscription payments.
-  - API routes for payment initiation and webhook to update `transaction_id` in `OrganizationPrivateMetadata` and log in `billing_logs`.
-  - Update `plan_expires_at` and `plan_status` on successful payment.
+  - API routes for payment initiation and webhook to update `billing_logs` and Clerk metadata (`transaction_id`, `plan_expires_at`, `plan_status`).
 - **shadcn/ui & Tailwind**:
   - shadcn/ui for consistent design.
   - Tailwind config with healthcare-themed colors.
@@ -181,25 +176,26 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ### Phase 1: Setup and Authentication (2 weeks)
 
 - Set up Next.js with TypeScript, Tailwind CSS, shadcn/ui.
-- Integrate Clerk for organization authentication with metadata interfaces.
-- Configure Supabase with schema and RLS.
-- Build login/signup with organization plan selection.
+- Integrate Clerk for organization authentication and membership roles.
+- Configure Supabase with schema, RLS, and `@supabase/ssr`.
+- Build login/signup with organization membership flows.
+- Set up Clerk webhooks for organization and user events.
 
 ### Phase 2: Core Features (4 weeks)
 
-- Implement appointment, department, and staff management.
-- Set up Supabase edge functions for appointment triggers.
+- Implement appointment and department management.
+- Set up Supabase edge functions for appointment triggers and plan status checks.
 
 ### Phase 3: Messaging and Billing (3 weeks)
 
 - Integrate Twilio for SMS.
-- Implement Paytm billing with plan selection, transaction logging, and metadata updates (`plan_expires_at`, `plan_status`, `transaction_id`).
+- Implement Paytm billing with plan selection and transaction logging.
 - Add Framer Motion animations.
 
 ### Phase 4: Testing and Launch (2 weeks)
 
 - Test Clerk, Supabase, Twilio, and Paytm integrations.
-- Verify metadata sync and plan enforcement.
+- Verify RLS and role-based access via Clerk API.
 - Conduct user acceptance testing.
 - Deploy to Vercel and Supabase.
 - Monitor usage and feedback.
@@ -215,11 +211,11 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 12. Risks and Mitigations
 
 - **Risk**: Clerk-Supabase sync complexity.
-  - **Mitigation**: Follow Clerk’s integration guide and test webhooks.
+  - **Mitigation**: Use Clerk webhooks and test thoroughly.
 - **Risk**: Paytm transaction failures.
-  - **Mitigation**: Implement retry logic and monitor Paytm webhook status.
-- **Risk**: Plan expiration logic errors.
-  - **Mitigation**: Test `plan_expires_at` and `plan_status` updates thoroughly.
+  - **Mitigation**: Implement retry logic and monitor webhook status.
+- **Risk**: Role-based access without user metadata.
+  - **Mitigation**: Use Clerk API to fetch membership roles; implement role-checking endpoint.
 - **Risk**: UI/UX complexity.
   - **Mitigation**: Use shadcn/ui and conduct usability testing.
 
@@ -233,5 +229,6 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 14. References
 
 - [Clerk-Supabase Integration](https://clerk.com/docs/integrations/databases/supabase)
-- [Clerk Metadata Setup](https://clerk.com/docs/users/metadata)
-- Paytm Payment Gateway, Supabase, Twilio, shadcn/ui, Framer Motion documentation.
+- [Clerk Webhooks](https://clerk.com/docs/integrations/webhooks)
+- [Supabase Next.js Quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
+- Paytm Payment Gateway, Twilio, shadcn/ui, Framer Motion documentation.
