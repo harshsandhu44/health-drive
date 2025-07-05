@@ -6,7 +6,7 @@ export const GET = async () => {
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({}),
