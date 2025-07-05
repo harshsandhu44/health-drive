@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PropsWithChildren } from "react";
 import { RootProvider } from "@/components/providers";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <RootProvider>{children}</RootProvider>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

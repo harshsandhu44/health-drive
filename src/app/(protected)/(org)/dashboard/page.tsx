@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -7,194 +6,112 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { currentUser } from "@clerk/nextjs/server";
-import { format } from "date-fns";
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+import { fetchTodaysAppointmentsAction } from "@/app/actions";
+import { DataTable } from "@/components/ui/data-table";
+import { appointmentColumns } from "@/components/appointments/appointment-columns";
+import { Appointment } from "@/types/appointment";
 
 const DashboardPage = async () => {
   const user = await currentUser();
 
-  const appointments = [
-    {
-      id: "1",
-      patient: {
-        name: "John Doe",
-        phone: "+1234567890",
-      },
-      doctor: {
-        name: "Dr. Jane Smith",
-        specialization: "Cardiologist",
-      },
-      date: new Date(),
-      status: "Pending",
-    },
-    {
-      id: "2",
-      patient: {
-        name: "Jane Doe",
-        phone: "+1234567890",
-      },
-      doctor: {
-        name: "Dr. John Smith",
-        specialization: "Cardiologist",
-      },
-      date: new Date(),
-      status: "Completed",
-    },
-    {
-      id: "3",
-      patient: {
-        name: "John Doe",
-        phone: "+1234567890",
-      },
-      doctor: {
-        name: "Dr. Jane Smith",
-        specialization: "Cardiologist",
-      },
-      date: new Date(),
-      status: "Confirmed",
-    },
-  ];
+  // Fetch today's appointments
+  let todaysAppointments: Appointment[] = [];
+  try {
+    todaysAppointments = await fetchTodaysAppointmentsAction();
+  } catch (error) {
+    console.error("Error fetching today's appointments:", error);
+  }
 
-  const todayAppointments = appointments.filter(
-    (appointment) => appointment.status === "Confirmed"
-  );
-
-  const pendingAppointments = appointments.filter(
-    (appointment) => appointment.status === "Pending"
-  );
+  // Calculate stats
+  const totalAppointments = todaysAppointments.length;
+  const confirmedAppointments = todaysAppointments.filter(
+    (apt) => apt.status === "confirmed"
+  ).length;
+  const pendingAppointments = todaysAppointments.filter(
+    (apt) => apt.status === "pending"
+  ).length;
+  const completedAppointments = todaysAppointments.filter(
+    (apt) => apt.status === "completed"
+  ).length;
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Welcome, {user?.firstName}!</h2>
+      <div>
+        <h2 className="text-2xl font-bold">Welcome back, {user?.firstName}!</h2>
+        <p className="text-muted-foreground">
+          Here&apos;s what&apos;s happening with your appointments today.
+        </p>
+      </div>
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader>
-            <CardTitle>New Appointments</CardTitle>
-            <CardDescription>
-              Total appointments for the last 30 days.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total Appointments
+            </CardTitle>
+            <TrendingUpIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-4">
-              <span className="text-4xl font-bold">54</span>
-              <span className="text-sm text-muted-foreground flex items-center gap-2">
-                <TrendingDownIcon className="size-4" />
-                <span>3% decrease</span>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>New Patients</CardTitle>
-            <CardDescription>
-              New patients for the last 30 days.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4">
-              <span className="text-4xl font-bold">76</span>
-              <span className="text-sm text-muted-foreground flex items-center gap-2">
-                <TrendingUpIcon className="size-4" />
-                <span>10% increase</span>
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Doctors</CardTitle>
-            <CardDescription>Total doctors in the facility.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-2">
-              <span className="text-4xl font-bold">10</span>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Today&apos;s Appointments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="list-none space-y-6">
-              {todayAppointments.map((appointment) => {
-                const date = format(appointment.date, "MMM d, yyyy");
-                const time = format(appointment.date, "hh:mm a");
-
-                return (
-                  <li
-                    key={appointment.id}
-                    className="flex justify-between gap-4"
-                  >
-                    <div className="space-y-1">
-                      <h3 className="font-bold">{appointment.patient.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {date} {time}
-                      </p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {appointment.doctor.specialization}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="text-2xl font-bold">{totalAppointments}</div>
+            <p className="text-xs text-muted-foreground">
+              Appointments for today
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Pending Appointments</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
+            <TrendingUpIcon className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-2">
-              <ul className="list-none space-y-6">
-                {pendingAppointments.map((appointment) => {
-                  const date = format(appointment.date, "MMM d, yyyy");
-                  const time = format(appointment.date, "hh:mm a");
-
-                  return (
-                    <li
-                      key={appointment.id}
-                      className="flex justify-between gap-4"
-                    >
-                      <div className="space-y-1">
-                        <h3 className="font-bold">
-                          {appointment.patient.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {date} {time}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col items-end gap-1">
-                        <p className="text-sm text-muted-foreground">
-                          {appointment.doctor.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {appointment.doctor.specialization}
-                        </p>
-                        <Badge variant="outline">{appointment.status}</Badge>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <div className="text-2xl font-bold">{confirmedAppointments}</div>
+            <p className="text-xs text-muted-foreground">Ready for today</p>
           </CardContent>
         </Card>
-      </section>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <TrendingDownIcon className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{pendingAppointments}</div>
+            <p className="text-xs text-muted-foreground">
+              Awaiting confirmation
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <TrendingUpIcon className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{completedAppointments}</div>
+            <p className="text-xs text-muted-foreground">Finished today</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Today&apos;s Appointments</CardTitle>
+          <CardDescription>
+            View and manage appointments scheduled for today
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={appointmentColumns}
+            data={todaysAppointments}
+            searchKey="patient.name"
+            searchPlaceholder="Search patients..."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
