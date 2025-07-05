@@ -107,7 +107,7 @@ const DashboardPage = async () => {
           <DataTable
             columns={appointmentColumns}
             data={todaysAppointments}
-            searchKey="patient.name"
+            searchKey="patient_name"
             searchPlaceholder="Search patients..."
           />
         </CardContent>

@@ -61,7 +61,7 @@ const handleDelete = async (appointmentId: string) => {
 
 export const appointmentColumns: ColumnDef<Appointment>[] = [
   {
-    accessorKey: "patient.name",
+    accessorKey: "patient_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Patient" />
     ),
@@ -76,7 +76,7 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
     },
   },
   {
-    accessorKey: "patient.phone",
+    accessorKey: "patient_phone",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Phone" />
     ),
