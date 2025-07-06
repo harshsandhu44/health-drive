@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneNumberInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  createAppointmentAction,
+  // createAppointmentAction,
   fetchOrganizationMembersAction,
 } from "@/app/actions";
 
@@ -40,6 +41,7 @@ export function NewAppointmentForm({
 }: NewAppointmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
 
   // Fetch fresh doctors data on component mount
   useEffect(() => {
@@ -58,16 +60,17 @@ export function NewAppointmentForm({
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
+    console.log(formData);
 
-    try {
-      await createAppointmentAction(formData);
-      toast.success("Appointment created successfully!");
-    } catch (error) {
-      toast.error("Failed to create appointment");
-      console.error("Error creating appointment:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    // try {
+    //   await createAppointmentAction(formData);
+    //   toast.success("Appointment created successfully!");
+    // } catch (error) {
+    //   toast.error("Failed to create appointment");
+    //   console.error("Error creating appointment:", error);
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   return (
@@ -104,11 +107,17 @@ export function NewAppointmentForm({
 
           <div className="space-y-2">
             <Label htmlFor="patient_phone">Patient Phone</Label>
-            <Input
-              id="patient_phone"
-              name="patient_phone"
-              type="tel"
+            <PhoneNumberInput
+              value={phoneNumber}
+              onChange={setPhoneNumber}
               placeholder="Enter patient phone number"
+              defaultCountry="US"
+            />
+            <input
+              type="hidden"
+              name="patient_phone"
+              id="patient_phone"
+              value={phoneNumber}
               required
             />
           </div>
