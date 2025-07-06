@@ -131,13 +131,13 @@ export async function createAppointmentAction(formData: FormData) {
     }
 
     const patient_email = formData.get("patient_email") as string;
-    const patient_note = formData.get("patient_note") as string;
+    const appointment_note = formData.get("appointment_note") as string;
 
     const appointmentData: CreateAppointmentData = {
       patient_name: formData.get("patient_name") as string,
       patient_email: patient_email || undefined,
       patient_phone: formData.get("patient_phone") as string,
-      patient_note: patient_note || undefined,
+      appointment_note: appointment_note || undefined,
       doctor_id: formData.get("doctor_id") as string,
       date: formData.get("date") as string,
       time: formData.get("time") as string,
@@ -188,7 +188,6 @@ export async function createAppointmentAction(formData: FormData) {
             name: appointmentData.patient_name,
             email: appointmentData.patient_email,
             phone: appointmentData.patient_phone,
-            note: appointmentData.patient_note,
             organization_id: orgId,
           })
           .select()
@@ -208,7 +207,6 @@ export async function createAppointmentAction(formData: FormData) {
         .insert({
           name: appointmentData.patient_name,
           phone: appointmentData.patient_phone,
-          note: appointmentData.patient_note,
           organization_id: orgId,
         })
         .select()
@@ -230,6 +228,7 @@ export async function createAppointmentAction(formData: FormData) {
         doctor_id: appointmentData.doctor_id,
         appointment_datetime: utcDateTime,
         status: appointmentData.status || "confirmed",
+        note: appointmentData.appointment_note,
         organization_id: orgId,
       });
 

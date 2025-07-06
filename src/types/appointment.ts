@@ -3,7 +3,6 @@ export interface Patient {
   name: string;
   email?: string;
   phone: string;
-  note?: string;
   organization_id: string;
   created_at: string;
   updated_at: string;
@@ -15,6 +14,7 @@ export interface Appointment {
   doctor_id: string;
   appointment_datetime: string;
   status: "pending" | "confirmed" | "cancelled" | "completed";
+  note?: string;
   organization_id: string;
   created_at: string;
   updated_at: string;
@@ -30,7 +30,7 @@ export interface CreateAppointmentData {
   patient_name: string;
   patient_email?: string;
   patient_phone: string;
-  patient_note?: string;
+  appointment_note?: string;
   doctor_id: string;
   date: string;
   time: string;

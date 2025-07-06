@@ -112,6 +112,20 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
     },
   },
   {
+    accessorKey: "note",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Note" />
+    ),
+    cell: ({ row }) => {
+      const note = row.getValue("note") as string;
+      return (
+        <div className="max-w-[200px] truncate text-sm text-muted-foreground">
+          {note || "No note"}
+        </div>
+      );
+    },
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {

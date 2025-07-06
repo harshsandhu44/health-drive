@@ -111,7 +111,7 @@ export function NewAppointmentForm({
               value={phoneNumber}
               onChange={setPhoneNumber}
               placeholder="Enter patient phone number"
-              defaultCountry="US"
+              defaultCountry="IN"
             />
             <input
               type="hidden"
@@ -123,11 +123,13 @@ export function NewAppointmentForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="patient_note">Patient Note (Optional)</Label>
+            <Label htmlFor="appointment_note">
+              Appointment Note (Optional)
+            </Label>
             <Textarea
-              id="patient_note"
-              name="patient_note"
-              placeholder="Enter any additional notes about the patient"
+              id="appointment_note"
+              name="appointment_note"
+              placeholder="Enter any additional notes about the appointment"
               rows={3}
             />
           </div>
