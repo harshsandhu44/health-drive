@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -91,13 +92,12 @@ export function NewAppointmentForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="patient_email">Patient Email</Label>
+              <Label htmlFor="patient_email">Patient Email (Optional)</Label>
               <Input
                 id="patient_email"
                 name="patient_email"
                 type="email"
                 placeholder="Enter patient email"
-                required
               />
             </div>
           </div>
@@ -110,6 +110,16 @@ export function NewAppointmentForm({
               type="tel"
               placeholder="Enter patient phone number"
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="patient_note">Patient Note (Optional)</Label>
+            <Textarea
+              id="patient_note"
+              name="patient_note"
+              placeholder="Enter any additional notes about the patient"
+              rows={3}
             />
           </div>
 

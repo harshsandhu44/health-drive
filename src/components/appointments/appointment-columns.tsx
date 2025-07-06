@@ -72,7 +72,6 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
   },
   {
     accessorKey: "patient.phone",
-    enableHiding: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Phone" />
     ),
@@ -82,23 +81,20 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
     },
   },
   {
-    accessorKey: "date",
+    accessorKey: "appointment_datetime",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
-      const date = row.getValue("date") as string;
-      return <div className="font-medium">{format(new Date(date), "PPP")}</div>;
-    },
-  },
-  {
-    accessorKey: "time",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Time" />
-    ),
-    cell: ({ row }) => {
-      const time = row.getValue("time") as string;
-      return <div className="font-medium">{time}</div>;
+      const date = row.getValue("appointment_datetime") as string;
+      return (
+        <div className="flex flex-col font-medium">
+          {format(new Date(date), "MMM d, yyyy")}
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(date), "hh:mm a")}
+          </span>
+        </div>
+      );
     },
   },
   {

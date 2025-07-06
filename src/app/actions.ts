@@ -25,8 +25,7 @@ export async function fetchAppointmentsAction(): Promise<Appointment[]> {
       `
       )
       .eq("organization_id", orgId)
-      .order("date", { ascending: true })
-      .order("time", { ascending: true });
+      .order("appointment_datetime", { ascending: true });
 
     if (error) {
       console.error("Error fetching appointments:", error);
@@ -49,7 +48,17 @@ export async function fetchTodaysAppointmentsAction(): Promise<Appointment[]> {
     }
 
     const supabase = await createServerClient();
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date();
+    const startOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
+    const endOfDay = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1
+    );
 
     const { data, error } = await supabase
       .from("appointments")
@@ -60,8 +69,9 @@ export async function fetchTodaysAppointmentsAction(): Promise<Appointment[]> {
       `
       )
       .eq("organization_id", orgId)
-      .eq("date", today)
-      .order("time", { ascending: true });
+      .gte("appointment_datetime", startOfDay.toISOString())
+      .lt("appointment_datetime", endOfDay.toISOString())
+      .order("appointment_datetime", { ascending: true });
 
     if (error) {
       console.error("Error fetching today's appointments:", error);
@@ -120,10 +130,14 @@ export async function createAppointmentAction(formData: FormData) {
       throw new Error("Unauthorized");
     }
 
+    const patient_email = formData.get("patient_email") as string;
+    const patient_note = formData.get("patient_note") as string;
+
     const appointmentData: CreateAppointmentData = {
       patient_name: formData.get("patient_name") as string,
-      patient_email: formData.get("patient_email") as string,
+      patient_email: patient_email || undefined,
       patient_phone: formData.get("patient_phone") as string,
+      patient_note: patient_note || undefined,
       doctor_id: formData.get("doctor_id") as string,
       date: formData.get("date") as string,
       time: formData.get("time") as string,
@@ -133,7 +147,6 @@ export async function createAppointmentAction(formData: FormData) {
     // Validate required fields
     if (
       !appointmentData.patient_name ||
-      !appointmentData.patient_email ||
       !appointmentData.patient_phone ||
       !appointmentData.doctor_id ||
       !appointmentData.date ||
@@ -142,32 +155,60 @@ export async function createAppointmentAction(formData: FormData) {
       throw new Error("Missing required fields");
     }
 
+    // Convert date and time to UTC datetime
+    const localDateTime = new Date(
+      `${appointmentData.date}T${appointmentData.time}`
+    );
+    const utcDateTime = localDateTime.toISOString();
+
     const supabase = await createServerClient();
 
-    // First, create or find the patient
-    const { data: existingPatient, error: patientFetchError } = await supabase
-      .from("patients")
-      .select("*")
-      .eq("email", appointmentData.patient_email)
-      .eq("organization_id", orgId)
-      .single();
-
+    // First, create or find the patient (only if email is provided)
     let patient;
-    if (patientFetchError && patientFetchError.code !== "PGRST116") {
-      console.error("Error fetching patient:", patientFetchError);
-      throw new Error("Failed to fetch patient");
-    }
+    if (appointmentData.patient_email) {
+      const { data: existingPatient, error: patientFetchError } = await supabase
+        .from("patients")
+        .select("*")
+        .eq("email", appointmentData.patient_email)
+        .eq("organization_id", orgId)
+        .single();
 
-    if (existingPatient) {
-      patient = existingPatient;
+      if (patientFetchError && patientFetchError.code !== "PGRST116") {
+        console.error("Error fetching patient:", patientFetchError);
+        throw new Error("Failed to fetch patient");
+      }
+
+      if (existingPatient) {
+        patient = existingPatient;
+      } else {
+        // Create new patient
+        const { data: newPatient, error: patientCreateError } = await supabase
+          .from("patients")
+          .insert({
+            name: appointmentData.patient_name,
+            email: appointmentData.patient_email,
+            phone: appointmentData.patient_phone,
+            note: appointmentData.patient_note,
+            organization_id: orgId,
+          })
+          .select()
+          .single();
+
+        if (patientCreateError) {
+          console.error("Error creating patient:", patientCreateError);
+          throw new Error("Failed to create patient");
+        }
+
+        patient = newPatient;
+      }
     } else {
-      // Create new patient
+      // Create new patient without email
       const { data: newPatient, error: patientCreateError } = await supabase
         .from("patients")
         .insert({
           name: appointmentData.patient_name,
-          email: appointmentData.patient_email,
           phone: appointmentData.patient_phone,
+          note: appointmentData.patient_note,
           organization_id: orgId,
         })
         .select()
@@ -187,8 +228,7 @@ export async function createAppointmentAction(formData: FormData) {
       .insert({
         patient_id: patient.id,
         doctor_id: appointmentData.doctor_id,
-        date: appointmentData.date,
-        time: appointmentData.time,
+        appointment_datetime: utcDateTime,
         status: appointmentData.status || "confirmed",
         organization_id: orgId,
       });
