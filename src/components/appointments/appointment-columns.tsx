@@ -61,22 +61,18 @@ const handleDelete = async (appointmentId: string) => {
 
 export const appointmentColumns: ColumnDef<Appointment>[] = [
   {
-    accessorKey: "patient_name",
+    accessorKey: "patient.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Patient" />
     ),
     cell: ({ row }) => {
       const patient = row.original.patient;
-      return (
-        <div className="flex flex-col">
-          <div className="font-medium">{patient?.name}</div>
-          <div className="text-sm text-muted-foreground">{patient?.email}</div>
-        </div>
-      );
+      return <div className="font-medium">{patient?.name}</div>;
     },
   },
   {
-    accessorKey: "patient_phone",
+    accessorKey: "patient.phone",
+    enableHiding: true,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Phone" />
     ),

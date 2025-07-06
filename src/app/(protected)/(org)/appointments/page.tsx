@@ -35,8 +35,8 @@ const AppointmentsPage = async () => {
       <DataTable
         columns={appointmentColumns}
         data={appointments}
-        searchKey="patient_name"
-        searchPlaceholder="Search patients..."
+        searchKey="patient_phone"
+        searchPlaceholder="Search patients with phone number..."
       />
     </div>
   );
