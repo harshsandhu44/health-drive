@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, doctor management, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. A new `doctors` table tracks doctor details and patient associations, with `appointments.doctor_id` now referencing `doctors.id` (UUID). Billing is handled manually by admins setting plan details in Clerk, logged in Supabase. The database schema uses `TEXT` for Clerk IDs, makes patient email optional, and includes an optional note in appointments.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, doctor management, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. A `doctors` table tracks doctor details, including specialization, and patient associations. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase. The database schema uses `TEXT` for Clerk IDs, makes patient email optional, and includes an optional note in appointments.
 
 ## 2. Objectives
 
@@ -48,13 +48,13 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ### 4.3 Doctor Management
 
-- **Description**: Manage doctors within facilities, tracking associated patients.
+- **Description**: Manage doctors within facilities, tracking associated patients and specialization.
 - **Functionality**:
-  - Admins create, update, and delete doctors with name, phone number, and optional address.
+  - Admins create, update, and delete doctors with name, phone number, optional address, and optional specialization.
   - Automatically track patients associated with each doctor via appointments.
-  - View doctor details and patient lists.
+  - View doctor details, including specialization, and patient lists.
 - **Technical Requirements**:
-  - Supabase table: `doctors` (`id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `created_at`, `updated_at`).
+  - Supabase table: `doctors` (`id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `specialization` (TEXT, nullable), `created_at`, `updated_at`).
   - UI with shadcn/ui for doctor CRUD operations.
   - Trigger to update `patient_ids` based on appointments.
   - Server Actions for CRUD operations, restricted to admins.
@@ -117,7 +117,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **departments**: `id` (UUID), `name` (TEXT), `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`.
 - **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`.
-- **doctors**: `id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `created_at`, `updated_at`.
+- **doctors**: `id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `specialization` (TEXT, nullable), `created_at`, `updated_at`.
 - **appointments**: `id` (UUID), `patient_id` (UUID, fk to patients.id), `doctor_id` (UUID, fk to doctors.id), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`, `note` (TEXT, nullable).
 - **message_logs**: `id` (UUID), `appointment_id` (UUID, fk to appointments.id), `patient_phone` (TEXT), `message` (TEXT), `status` (TEXT), `organization_id` (TEXT), `created_at`.
 - **billing_logs**: `id` (UUID), `organization_id` (TEXT), `plan` (TEXT), `amount` (NUMERIC), `paytm_transaction_id` (TEXT), `status` (TEXT), `created_at`.
@@ -144,10 +144,10 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 ## 7. User Interface
 
-- **Dashboard**: Overview of appointments, department stats, doctor stats, plan status (`plan_expires_at`, `plan_status`), and staff (via Clerk API).
+- **Dashboard**: Overview of appointments, department stats, doctor stats (including specialization), plan status (`plan_expires_at`, `plan_status`), and staff (via Clerk API).
 - **Appointments Page**: Calendar view, scheduling form (with datetime, note inputs, and doctor selection from `doctors` table), appointment list.
 - **Departments Page**: Department CRUD operations.
-- **Doctors Page**: Doctor CRUD operations, view patient lists.
+- **Doctors Page**: Doctor CRUD operations, view patient lists and specialization.
 - **Staff Page**: Directory of organization members (via Clerk API) with role filters.
 - **Messaging Page**: Message logs and manual messaging interface (future phase).
 - **Billing Page**: View current plan details, billing history; admin UI to manually update plan details (`plan`, `plan_expires_at`, `plan_status`, `transaction_id`).
