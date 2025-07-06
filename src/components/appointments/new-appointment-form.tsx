@@ -23,14 +23,9 @@ import {
 import { toast } from "sonner";
 import {
   // createAppointmentAction,
-  fetchOrganizationMembersAction,
+  fetchDoctorsAction,
 } from "@/app/actions";
-
-interface Doctor {
-  id: string;
-  name: string;
-  email: string;
-}
+import { Doctor } from "@/types/appointment";
 
 interface NewAppointmentFormProps {
   doctors: Doctor[];
@@ -47,7 +42,7 @@ export function NewAppointmentForm({
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const freshDoctors = await fetchOrganizationMembersAction();
+        const freshDoctors = await fetchDoctorsAction();
         setDoctors(freshDoctors);
       } catch (error) {
         console.error("Error fetching doctors:", error);
@@ -143,7 +138,14 @@ export function NewAppointmentForm({
               <SelectContent>
                 {doctors.map((doctor) => (
                   <SelectItem key={doctor.id} value={doctor.id}>
-                    {doctor.name}
+                    <div className="flex flex-col">
+                      <span>{doctor.name}</span>
+                      {doctor.specialization && (
+                        <span className="text-xs text-muted-foreground">
+                          {doctor.specialization}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>

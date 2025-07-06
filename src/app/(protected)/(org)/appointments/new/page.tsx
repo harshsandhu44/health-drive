@@ -1,17 +1,12 @@
 import { NewAppointmentForm } from "@/components/appointments/new-appointment-form";
-import { fetchOrganizationMembersAction } from "@/app/actions";
-
-interface Doctor {
-  id: string;
-  name: string;
-  email: string;
-}
+import { fetchDoctorsAction } from "@/app/actions";
+import { Doctor } from "@/types/appointment";
 
 const NewAppointmentPage = async () => {
-  // Fetch organization members (doctors)
+  // Fetch doctors from doctors table
   let doctors: Doctor[] = [];
   try {
-    doctors = await fetchOrganizationMembersAction();
+    doctors = await fetchDoctorsAction();
   } catch (error) {
     console.error("Error fetching doctors:", error);
   }

@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createServerClient } from "@/lib/db/server";
-import { CreateAppointmentData, Appointment } from "@/types/appointment";
+import {
+  CreateAppointmentData,
+  Appointment,
+  Doctor,
+} from "@/types/appointment";
 
 // Fetch all appointments
 export async function fetchAppointmentsAction(): Promise<Appointment[]> {
@@ -21,7 +25,8 @@ export async function fetchAppointmentsAction(): Promise<Appointment[]> {
       .select(
         `
         *,
-        patient:patients(*)
+        patient:patients(*),
+        doctor:doctors(*)
       `
       )
       .eq("organization_id", orgId)
@@ -65,7 +70,8 @@ export async function fetchTodaysAppointmentsAction(): Promise<Appointment[]> {
       .select(
         `
         *,
-        patient:patients(*)
+        patient:patients(*),
+        doctor:doctors(*)
       `
       )
       .eq("organization_id", orgId)
@@ -85,7 +91,35 @@ export async function fetchTodaysAppointmentsAction(): Promise<Appointment[]> {
   }
 }
 
-// Fetch organization members
+// Fetch doctors from the doctors table
+export async function fetchDoctorsAction(): Promise<Doctor[]> {
+  try {
+    const { orgId } = await auth();
+    if (!orgId) {
+      throw new Error("Unauthorized");
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("doctors")
+      .select("*")
+      .eq("organization_id", orgId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching doctors:", error);
+      throw new Error("Failed to fetch doctors");
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching doctors:", error);
+    throw error;
+  }
+}
+
+// Fetch organization members (DEPRECATED - use fetchDoctorsAction instead)
 export async function fetchOrganizationMembersAction() {
   try {
     const { orgId } = await auth();
@@ -270,7 +304,8 @@ export async function updateAppointmentStatusAction(
       .select(
         `
         *,
-        patient:patients(*)
+        patient:patients(*),
+        doctor:doctors(*)
       `
       )
       .single();

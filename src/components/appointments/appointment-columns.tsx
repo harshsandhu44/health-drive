@@ -81,6 +81,25 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
     },
   },
   {
+    accessorKey: "doctor.name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Doctor" />
+    ),
+    cell: ({ row }) => {
+      const doctor = row.original.doctor;
+      return (
+        <div className="font-medium">
+          <div>{doctor?.name}</div>
+          {doctor?.specialization && (
+            <div className="text-xs text-muted-foreground">
+              {doctor.specialization}
+            </div>
+          )}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "appointment_datetime",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />

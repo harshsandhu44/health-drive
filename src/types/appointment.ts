@@ -8,6 +8,18 @@ export interface Patient {
   updated_at: string;
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  phone_number: string;
+  address?: string;
+  organization_id: string;
+  patient_ids?: string[];
+  specialization?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Appointment {
   id: string;
   patient_id: string;
@@ -19,11 +31,7 @@ export interface Appointment {
   created_at: string;
   updated_at: string;
   patient?: Patient;
-  doctor?: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  doctor?: Doctor;
 }
 
 export interface CreateAppointmentData {
