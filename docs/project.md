@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. Organization and user data are managed in Clerk, with no Supabase tables for facilities or staff profiles. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase. The database schema uses `TEXT` for Clerk IDs, makes patient email optional, includes an optional patient note, and combines appointment date/time into a single datetime field.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. Organization and user data are managed in Clerk, with no Supabase tables for facilities or staff profiles. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase. The database schema uses `TEXT` for Clerk IDs, makes patient email optional, and includes an optional note in appointments.
 
 ## 2. Objectives
 
@@ -24,12 +24,12 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - **Description**: Facilities can create, update, cancel, and view patient appointments.
 - **Functionality**:
-  - Admins and doctors schedule appointments with a doctor (identified by Clerk user ID), specifying a datetime and patient details.
-  - Patients identified by name, phone number, optional email, and optional note.
+  - Admins and doctors schedule appointments with a doctor (identified by Clerk user ID), specifying a datetime, patient details, and optional note.
+  - Patients identified by name, phone number, and optional email.
   - Appointment status: Pending, Confirmed, Cancelled, Completed.
   - View appointments by day, week, or month in a calendar interface.
 - **Technical Requirements**:
-  - Store appointments in Supabase: `id`, `patient_id` (UUID), `doctor_id` (TEXT, Clerk user ID), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status`, `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`.
+  - Store appointments in Supabase: `id`, `patient_id` (UUID), `doctor_id` (TEXT, Clerk user ID), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status`, `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`, `note` (TEXT, nullable).
   - Calendar UI with shadcn/ui components and Tailwind CSS.
   - Framer Motion for smooth calendar navigation transitions.
   - Server Actions for data fetching and mutations, calling API routes.
@@ -68,7 +68,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Technical Requirements**:
   - Twilio API for SMS delivery (future phase).
   - Supabase edge function to trigger Twilio on appointment CRUD.
-  - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `organization_id` (TEXT), `created_at`).
+  - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `organization_id` (TEXT), `created_at`).
 
 ### 4.5 Subscription Plan Management
 
@@ -82,7 +82,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Plan limits enforced (e.g., block appointment/staff creation if limit exceeded).
   - Plan status (`active`, `inactive`, `expired`) updated based on `plan_expires_at`.
 - **Technical Requirements**:
-  - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter" | "pro" | "business", plan_expires_at: string, plan_status: "active" | "inactive" | "expired" }`.
+  - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter catalogue" | "pro" | "business", plan_expires_at: string, plan_status: "active" | "inactive" | "expired" }`.
   - Clerk organization private metadata: `{ transaction_id: string }`.
   - Supabase table: `billing_logs` (`id`, `organization_id` (TEXT), `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`).
   - Admin UI for manual plan updates using Clerk API and Server Actions.
@@ -103,8 +103,8 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ### Supabase Tables
 
 - **departments**: `id` (UUID), `name` (TEXT), `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`.
-- **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `note` (TEXT, nullable), `organization_id` (TEXT), `created_at`, `updated_at`.
-- **appointments**: `id` (UUID), `patient_id` (UUID, fk to patients.id), `doctor_id` (TEXT, Clerk user ID), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`.
+- **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`.
+- **appointments**: `id` (UUID), `patient_id` (UUID, fk to patients.id), `doctor_id` (TEXT, Clerk user ID), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`, `note` (TEXT, nullable).
 - **message_logs**: `id` (UUID), `appointment_id` (UUID, fk to appointments.id), `patient_phone` (TEXT), `message` (TEXT), `status` (TEXT), `organization_id` (TEXT), `created_at`.
 - **billing_logs**: `id` (UUID), `organization_id` (TEXT), `plan` (TEXT), `amount` (NUMERIC), `paytm_transaction_id` (TEXT), `status` (TEXT), `created_at`.
 
@@ -131,7 +131,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 7. User Interface
 
 - **Dashboard**: Overview of appointments, department stats, plan status (`plan_expires_at`, `plan_status`), and staff (via Clerk API).
-- **Appointments Page**: Calendar view, scheduling form (with datetime input), appointment list.
+- **Appointments Page**: Calendar view, scheduling form (with datetime and note inputs), appointment list.
 - **Departments Page**: Department CRUD operations.
 - **Staff Page**: Directory of organization members (via Clerk API) with role filters.
 - **Messaging Page**: Message logs and manual messaging interface (future phase).
