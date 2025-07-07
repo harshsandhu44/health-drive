@@ -1,18 +1,36 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { fetchDoctorsAction } from "@/app/actions";
 import { DataTable } from "@/components/ui/data-table";
 import { doctorColumns } from "@/components/doctors/doctor-columns";
 import { Doctor } from "@/types/appointment";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { NewDoctorModal } from "@/components/doctors/new-doctor-modal";
 
-const DoctorsPage = async () => {
-  // Fetch all doctors
-  let doctors: Doctor[] = [];
-  try {
-    doctors = await fetchDoctorsAction();
-  } catch (error) {
-    console.error("Error fetching doctors:", error);
-  }
+const DoctorsPage = () => {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchDoctors = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedDoctors = await fetchDoctorsAction();
+      setDoctors(fetchedDoctors);
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const handleDoctorCreated = () => {
+    // Refresh the doctors list after a new doctor is created
+    fetchDoctors();
+  };
 
   return (
     <div className="space-y-6">
@@ -23,18 +41,21 @@ const DoctorsPage = async () => {
             View and manage all doctors for your organization.
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Doctor
-        </Button>
+        <NewDoctorModal onDoctorCreated={handleDoctorCreated} />
       </div>
 
-      <DataTable
-        columns={doctorColumns}
-        data={doctors}
-        searchKey="name"
-        searchPlaceholder="Search doctors by name..."
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="text-muted-foreground">Loading doctors...</div>
+        </div>
+      ) : (
+        <DataTable
+          columns={doctorColumns}
+          data={doctors}
+          searchKey="name"
+          searchPlaceholder="Search doctors by name..."
+        />
+      )}
     </div>
   );
 };

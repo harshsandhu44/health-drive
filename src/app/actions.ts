@@ -361,3 +361,51 @@ export async function deleteAppointmentAction(appointmentId: string) {
     throw error;
   }
 }
+
+// Create doctor
+export async function createDoctorAction(formData: FormData) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const name = formData.get("name") as string;
+    const phoneNumber = formData.get("phone_number") as string;
+    const address = formData.get("address") as string;
+    const specialization = formData.get("specialization") as string;
+
+    // Validate required fields
+    if (!name || !phoneNumber) {
+      throw new Error("Name and phone number are required");
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("doctors")
+      .insert({
+        name,
+        phone_number: phoneNumber,
+        address: address || null,
+        specialization: specialization || null,
+        organization_id: orgId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating doctor:", error);
+      throw new Error("Failed to create doctor");
+    }
+
+    // Revalidate the doctors page and dashboard
+    revalidatePath("/doctors");
+    revalidatePath("/dashboard");
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in createDoctorAction:", error);
+    throw error;
+  }
+}

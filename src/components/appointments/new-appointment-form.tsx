@@ -21,10 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import {
-  // createAppointmentAction,
-  fetchDoctorsAction,
-} from "@/app/actions";
+import { createAppointmentAction, fetchDoctorsAction } from "@/app/actions";
 import { Doctor } from "@/types/appointment";
 
 interface NewAppointmentFormProps {
@@ -55,17 +52,16 @@ export function NewAppointmentForm({
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
-    console.log(formData);
 
-    // try {
-    //   await createAppointmentAction(formData);
-    //   toast.success("Appointment created successfully!");
-    // } catch (error) {
-    //   toast.error("Failed to create appointment");
-    //   console.error("Error creating appointment:", error);
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    try {
+      await createAppointmentAction(formData);
+      toast.success("Appointment created successfully!");
+    } catch (error) {
+      toast.error("Failed to create appointment");
+      console.error("Error creating appointment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
