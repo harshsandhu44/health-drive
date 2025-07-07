@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "HealthDrive by whouse.io",
+  title: "HealthDrive by Vylune",
   description:
     "HealthDrive solves the problem of healthcare data management. We are on a mission to help you manage data on your own terms.",
 };
