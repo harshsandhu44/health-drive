@@ -1,5 +1,6 @@
 "use client";
 
+import { CreateAppointmentModal } from "@/components/appointments/create-appointment-modal";
 import { buttonVariants } from "@/components/ui/button";
 import {
   SidebarGroup,
@@ -30,17 +31,20 @@ export const MainNav = ({ items }: MainNavProps) => {
       <SidebarGroupContent className="flex flex-col gap-6">
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Create Appointment"
-              onClick={() => router.push("/appointments/new")}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "justify-start"
-              )}
-            >
-              <PlusCircleIcon />
-              <span>Create Appointment</span>
-            </SidebarMenuButton>
+            <CreateAppointmentModal
+              triggerButton={
+                <SidebarMenuButton
+                  tooltip="Create Appointment"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "justify-start"
+                  )}
+                >
+                  <PlusCircleIcon />
+                  <span>Create Appointment</span>
+                </SidebarMenuButton>
+              }
+            />
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>

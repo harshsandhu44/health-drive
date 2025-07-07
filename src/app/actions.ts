@@ -8,6 +8,7 @@ import {
   CreateAppointmentData,
   Appointment,
   Doctor,
+  Patient,
 } from "@/types/appointment";
 
 // Fetch all appointments
@@ -119,6 +120,44 @@ export async function fetchDoctorsAction(): Promise<Doctor[]> {
   }
 }
 
+// Fetch patients from the patients table
+export async function fetchPatientsAction(
+  searchQuery?: string
+): Promise<Patient[]> {
+  try {
+    const { orgId } = await auth();
+    if (!orgId) {
+      throw new Error("Unauthorized");
+    }
+
+    const supabase = await createServerClient();
+
+    let query = supabase
+      .from("patients")
+      .select("*")
+      .order("name", { ascending: true });
+
+    // Add search functionality if query is provided
+    if (searchQuery && searchQuery.trim()) {
+      query = query.or(
+        `name.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`
+      );
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching patients:", error);
+      throw new Error("Failed to fetch patients");
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching patients:", error);
+    throw error;
+  }
+}
+
 // Fetch organization members (DEPRECATED - use fetchDoctorsAction instead)
 export async function fetchOrganizationMembersAction() {
   try {
@@ -204,7 +243,6 @@ export async function createAppointmentAction(formData: FormData) {
         .from("patients")
         .select("*")
         .eq("email", appointmentData.patient_email)
-        .eq("organization_id", orgId)
         .single();
 
       if (patientFetchError && patientFetchError.code !== "PGRST116") {
@@ -222,7 +260,6 @@ export async function createAppointmentAction(formData: FormData) {
             name: appointmentData.patient_name,
             email: appointmentData.patient_email,
             phone: appointmentData.patient_phone,
-            organization_id: orgId,
           })
           .select()
           .single();
@@ -241,7 +278,6 @@ export async function createAppointmentAction(formData: FormData) {
         .insert({
           name: appointmentData.patient_name,
           phone: appointmentData.patient_phone,
-          organization_id: orgId,
         })
         .select()
         .single();
@@ -279,6 +315,296 @@ export async function createAppointmentAction(formData: FormData) {
     redirect("/appointments");
   } catch (error) {
     console.error("Error in createAppointmentAction:", error);
+    throw error;
+  }
+}
+
+// Create appointment (modal version - no redirect)
+export async function createAppointmentModalAction(formData: FormData) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const patient_email = formData.get("patient_email") as string;
+    const appointment_note = formData.get("appointment_note") as string;
+
+    const appointmentData: CreateAppointmentData = {
+      patient_name: formData.get("patient_name") as string,
+      patient_email: patient_email || undefined,
+      patient_phone: formData.get("patient_phone") as string,
+      appointment_note: appointment_note || undefined,
+      doctor_id: formData.get("doctor_id") as string,
+      date: formData.get("date") as string,
+      time: formData.get("time") as string,
+      status: "confirmed",
+    };
+
+    // Validate required fields
+    if (
+      !appointmentData.patient_name ||
+      !appointmentData.patient_phone ||
+      !appointmentData.doctor_id ||
+      !appointmentData.date ||
+      !appointmentData.time
+    ) {
+      throw new Error("Missing required fields");
+    }
+
+    // Convert date and time to UTC datetime
+    const localDateTime = new Date(
+      `${appointmentData.date}T${appointmentData.time}`
+    );
+    const utcDateTime = localDateTime.toISOString();
+
+    const supabase = await createServerClient();
+
+    // First, create or find the patient (only if email is provided)
+    let patient;
+    if (appointmentData.patient_email) {
+      const { data: existingPatient, error: patientFetchError } = await supabase
+        .from("patients")
+        .select("*")
+        .eq("email", appointmentData.patient_email)
+        .single();
+
+      if (patientFetchError && patientFetchError.code !== "PGRST116") {
+        console.error("Error fetching patient:", patientFetchError);
+        throw new Error("Failed to fetch patient");
+      }
+
+      if (existingPatient) {
+        patient = existingPatient;
+      } else {
+        // Create new patient
+        const { data: newPatient, error: patientCreateError } = await supabase
+          .from("patients")
+          .insert({
+            name: appointmentData.patient_name,
+            email: appointmentData.patient_email,
+            phone: appointmentData.patient_phone,
+          })
+          .select()
+          .single();
+
+        if (patientCreateError) {
+          console.error("Error creating patient:", patientCreateError);
+          throw new Error("Failed to create patient");
+        }
+
+        patient = newPatient;
+      }
+    } else {
+      // Create new patient without email
+      const { data: newPatient, error: patientCreateError } = await supabase
+        .from("patients")
+        .insert({
+          name: appointmentData.patient_name,
+          phone: appointmentData.patient_phone,
+        })
+        .select()
+        .single();
+
+      if (patientCreateError) {
+        console.error("Error creating patient:", patientCreateError);
+        throw new Error("Failed to create patient");
+      }
+
+      patient = newPatient;
+    }
+
+    // Create the appointment
+    const { error: appointmentError } = await supabase
+      .from("appointments")
+      .insert({
+        patient_id: patient.id,
+        doctor_id: appointmentData.doctor_id,
+        appointment_datetime: utcDateTime,
+        status: appointmentData.status || "confirmed",
+        note: appointmentData.appointment_note,
+        organization_id: orgId,
+      });
+
+    if (appointmentError) {
+      console.error("Error creating appointment:", appointmentError);
+      throw new Error("Failed to create appointment");
+    }
+
+    // Revalidate the appointments page and dashboard
+    revalidatePath("/appointments");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in createAppointmentModalAction:", error);
+    throw error;
+  }
+}
+
+// Create appointment for existing patient (modal version - no redirect)
+export async function createExistingPatientAppointmentModalAction(
+  formData: FormData
+) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const patient_id = formData.get("patient_id") as string;
+    const appointment_note = formData.get("appointment_note") as string;
+    const doctor_id = formData.get("doctor_id") as string;
+    const date = formData.get("date") as string;
+    const time = formData.get("time") as string;
+
+    // Validate required fields
+    if (!patient_id || !doctor_id || !date || !time) {
+      throw new Error("Missing required fields");
+    }
+
+    // Convert date and time to UTC datetime
+    const localDateTime = new Date(`${date}T${time}`);
+    const utcDateTime = localDateTime.toISOString();
+
+    const supabase = await createServerClient();
+
+    // Create the appointment
+    const { error: appointmentError } = await supabase
+      .from("appointments")
+      .insert({
+        patient_id,
+        doctor_id,
+        appointment_datetime: utcDateTime,
+        status: "confirmed",
+        note: appointment_note || null,
+        organization_id: orgId,
+      });
+
+    if (appointmentError) {
+      console.error("Error creating appointment:", appointmentError);
+      throw new Error("Failed to create appointment");
+    }
+
+    // Revalidate the appointments page and dashboard
+    revalidatePath("/appointments");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    console.error(
+      "Error in createExistingPatientAppointmentModalAction:",
+      error
+    );
+    throw error;
+  }
+}
+
+// Create appointment for existing patient
+export async function createExistingPatientAppointmentAction(
+  formData: FormData
+) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const patient_id = formData.get("patient_id") as string;
+    const appointment_note = formData.get("appointment_note") as string;
+    const doctor_id = formData.get("doctor_id") as string;
+    const date = formData.get("date") as string;
+    const time = formData.get("time") as string;
+
+    // Validate required fields
+    if (!patient_id || !doctor_id || !date || !time) {
+      throw new Error("Missing required fields");
+    }
+
+    // Convert date and time to UTC datetime
+    const localDateTime = new Date(`${date}T${time}`);
+    const utcDateTime = localDateTime.toISOString();
+
+    const supabase = await createServerClient();
+
+    // Create the appointment
+    const { error: appointmentError } = await supabase
+      .from("appointments")
+      .insert({
+        patient_id,
+        doctor_id,
+        appointment_datetime: utcDateTime,
+        status: "confirmed",
+        note: appointment_note || null,
+        organization_id: orgId,
+      });
+
+    if (appointmentError) {
+      console.error("Error creating appointment:", appointmentError);
+      throw new Error("Failed to create appointment");
+    }
+
+    // Revalidate the appointments page and dashboard
+    revalidatePath("/appointments");
+    revalidatePath("/dashboard");
+
+    // Redirect to appointments page
+    redirect("/appointments");
+  } catch (error) {
+    console.error("Error in createExistingPatientAppointmentAction:", error);
+    throw error;
+  }
+}
+
+// Update appointment details
+export async function updateAppointmentAction(
+  appointmentId: string,
+  doctorId: string,
+  appointmentDateTime: string,
+  note?: string
+) {
+  try {
+    const { orgId } = await auth();
+    if (!orgId) {
+      throw new Error("Unauthorized");
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("appointments")
+      .update({
+        doctor_id: doctorId,
+        appointment_datetime: appointmentDateTime,
+        note: note || null,
+      })
+      .eq("id", appointmentId)
+      .eq("organization_id", orgId)
+      .select(
+        `
+        *,
+        patient:patients(*),
+        doctor:doctors(*)
+      `
+      )
+      .single();
+
+    if (error) {
+      console.error("Error updating appointment:", error);
+      throw new Error("Failed to update appointment");
+    }
+
+    if (!data) {
+      throw new Error("Appointment not found");
+    }
+
+    // Revalidate the appointments page and dashboard
+    revalidatePath("/appointments");
+    revalidatePath("/dashboard");
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in updateAppointmentAction:", error);
     throw error;
   }
 }

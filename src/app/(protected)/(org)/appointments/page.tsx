@@ -2,9 +2,9 @@ import { fetchAppointmentsAction } from "@/app/actions";
 import { DataTable } from "@/components/ui/data-table";
 import { appointmentColumns } from "@/components/appointments/appointment-columns";
 import { Appointment } from "@/types/appointment";
+import { CreateAppointmentModal } from "@/components/appointments/create-appointment-modal";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { PlusIcon } from "lucide-react";
 
 const AppointmentsPage = async () => {
   // Fetch all appointments
@@ -24,12 +24,14 @@ const AppointmentsPage = async () => {
             View and manage all appointments for your organization.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/appointments/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Appointment
-          </Link>
-        </Button>
+        <CreateAppointmentModal
+          triggerButton={
+            <Button>
+              <PlusIcon className="mr-2 h-4 w-4" />
+              New Appointment
+            </Button>
+          }
+        />
       </div>
 
       <DataTable

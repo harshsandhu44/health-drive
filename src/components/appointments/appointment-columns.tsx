@@ -21,6 +21,7 @@ import {
 } from "@/app/actions";
 import { toast } from "sonner";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { EditAppointmentModal } from "./edit-appointment-modal";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -165,6 +166,15 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <EditAppointmentModal
+              appointment={appointment}
+              triggerButton={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  Edit Appointment
+                </DropdownMenuItem>
+              }
+            />
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleStatusUpdate(appointment.id, "confirmed")}
             >

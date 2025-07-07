@@ -21,15 +21,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { createAppointmentAction, fetchDoctorsAction } from "@/app/actions";
+import {
+  createAppointmentAction,
+  createAppointmentModalAction,
+  fetchDoctorsAction,
+} from "@/app/actions";
 import { Doctor } from "@/types/appointment";
 
 interface NewAppointmentFormProps {
   doctors: Doctor[];
+  onSuccess?: () => void;
 }
 
 export function NewAppointmentForm({
   doctors: initialDoctors,
+  onSuccess,
 }: NewAppointmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
@@ -54,8 +60,15 @@ export function NewAppointmentForm({
     setIsSubmitting(true);
 
     try {
-      await createAppointmentAction(formData);
+      if (onSuccess) {
+        // Use modal action if onSuccess is provided (modal context)
+        await createAppointmentModalAction(formData);
+      } else {
+        // Use regular action for page context
+        await createAppointmentAction(formData);
+      }
       toast.success("Appointment created successfully!");
+      onSuccess?.();
     } catch (error) {
       toast.error("Failed to create appointment");
       console.error("Error creating appointment:", error);
