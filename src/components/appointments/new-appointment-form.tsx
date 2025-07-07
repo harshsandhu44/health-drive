@@ -21,10 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import {
   createAppointmentAction,
   createAppointmentModalAction,
   fetchDoctorsAction,
+  checkPhoneNumberExistsAction,
 } from "@/app/actions";
 import { Doctor } from "@/types/appointment";
 
@@ -40,6 +42,11 @@ export function NewAppointmentForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isChecking: boolean;
+    exists: boolean;
+    message: string;
+  }>({ isChecking: false, exists: false, message: "" });
 
   // Fetch fresh doctors data on component mount
   useEffect(() => {
@@ -56,7 +63,71 @@ export function NewAppointmentForm({
     fetchDoctors();
   }, []);
 
+  // Real-time phone number validation
+  useEffect(() => {
+    const validatePhoneNumber = async () => {
+      // Only validate if phone number has exactly 10 digits (excluding country code and formatting)
+      const cleanPhone = phoneNumber.replace(/\D/g, "");
+
+      if (isValidPhoneNumber(phoneNumber)) {
+        console.log("**** phoneNumber", phoneNumber, cleanPhone);
+
+        setPhoneValidation({
+          isChecking: true,
+          exists: false,
+          message: "Checking...",
+        });
+
+        try {
+          const exists = await checkPhoneNumberExistsAction(phoneNumber);
+          if (exists) {
+            setPhoneValidation({
+              isChecking: false,
+              exists: true,
+              message:
+                "A patient with this phone number already exists. Please use the 'Existing Patient' tab.",
+            });
+          } else {
+            setPhoneValidation({
+              isChecking: false,
+              exists: false,
+              message: "Phone number is available",
+            });
+          }
+        } catch (validationError) {
+          console.error("Phone validation error:", validationError);
+          setPhoneValidation({
+            isChecking: false,
+            exists: false,
+            message: "Unable to validate phone number",
+          });
+        }
+      } else if (cleanPhone.length > 0) {
+        setPhoneValidation({
+          isChecking: false,
+          exists: false,
+          message: "",
+        });
+      } else {
+        setPhoneValidation({
+          isChecking: false,
+          exists: false,
+          message: "",
+        });
+      }
+    };
+
+    const timeoutId = setTimeout(validatePhoneNumber, 500);
+    return () => clearTimeout(timeoutId);
+  }, [phoneNumber]);
+
   const handleSubmit = async (formData: FormData) => {
+    // Prevent submission if phone number already exists
+    if (phoneValidation.exists) {
+      toast.error("Cannot create appointment. Phone number already exists.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -124,6 +195,43 @@ export function NewAppointmentForm({
               value={phoneNumber}
               required
             />
+            {phoneValidation.message && (
+              <div
+                className={`text-sm ${
+                  phoneValidation.exists
+                    ? "text-red-600"
+                    : phoneValidation.isChecking
+                    ? "text-blue-600"
+                    : "text-green-600"
+                }`}
+              >
+                {phoneValidation.isChecking && (
+                  <span className="inline-flex items-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-3 w-3"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  </span>
+                )}
+                {phoneValidation.message}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -178,7 +286,15 @@ export function NewAppointmentForm({
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={
+              isSubmitting ||
+              phoneValidation.exists ||
+              phoneValidation.isChecking
+            }
+          >
             {isSubmitting ? "Creating Appointment..." : "Create Appointment"}
           </Button>
         </form>

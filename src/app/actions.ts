@@ -158,6 +158,36 @@ export async function fetchPatientsAction(
   }
 }
 
+// Check if phone number exists (for real-time validation)
+export async function checkPhoneNumberExistsAction(
+  phoneNumber: string
+): Promise<boolean> {
+  try {
+    const { orgId } = await auth();
+    if (!orgId) {
+      throw new Error("Unauthorized");
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("patients")
+      .select("id")
+      .eq("phone", phoneNumber)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      console.error("Error checking phone number:", error);
+      throw new Error("Failed to validate phone number");
+    }
+
+    return !!data;
+  } catch (error) {
+    console.error("Error checking phone number:", error);
+    return false; // Return false on error to avoid blocking user
+  }
+}
+
 // Fetch organization members (DEPRECATED - use fetchDoctorsAction instead)
 export async function fetchOrganizationMembersAction() {
   try {
@@ -251,7 +281,9 @@ export async function createAppointmentAction(formData: FormData) {
       }
 
       if (existingPatient) {
-        patient = existingPatient;
+        throw new Error(
+          "A patient with this email already exists. Please use the 'Existing Patient' tab to book an appointment."
+        );
       } else {
         // Create new patient
         const { data: newPatient, error: patientCreateError } = await supabase
@@ -375,7 +407,9 @@ export async function createAppointmentModalAction(formData: FormData) {
       }
 
       if (existingPatient) {
-        patient = existingPatient;
+        throw new Error(
+          "A patient with this email already exists. Please use the 'Existing Patient' tab to book an appointment."
+        );
       } else {
         // Create new patient
         const { data: newPatient, error: patientCreateError } = await supabase
