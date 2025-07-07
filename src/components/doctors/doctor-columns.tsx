@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Phone, MapPin } from "lucide-react";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 export const doctorColumns: ColumnDef<Doctor>[] = [
   {
@@ -45,7 +46,7 @@ export const doctorColumns: ColumnDef<Doctor>[] = [
       return (
         <div className="flex items-center gap-2">
           <Phone className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm">{phone}</span>
+          <span className="text-sm">{formatPhoneNumberIntl(phone)}</span>
         </div>
       );
     },

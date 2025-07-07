@@ -20,6 +20,7 @@ import {
   deleteAppointmentAction,
 } from "@/app/actions";
 import { toast } from "sonner";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -77,7 +78,11 @@ export const appointmentColumns: ColumnDef<Appointment>[] = [
     ),
     cell: ({ row }) => {
       const patient = row.original.patient;
-      return <div className="text-sm">{patient?.phone}</div>;
+      return (
+        <div className="text-sm">
+          {patient?.phone && formatPhoneNumberIntl(patient.phone)}
+        </div>
+      );
     },
   },
   {
