@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
+  BarChartIcon,
   Building2Icon,
   CalendarIcon,
   CreditCardIcon,
@@ -55,6 +56,12 @@ export const OrgSidebar = ({
     orgMetadata?.plan === "pro" || orgMetadata?.plan === "business";
 
   const orgNav = [
+    {
+      label: "Reports",
+      href: "/reports",
+      icon: BarChartIcon,
+      disabled: !isOrgPro,
+    },
     {
       label: "Departments",
       href: "/departments",
