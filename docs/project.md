@@ -2,12 +2,13 @@
 
 ## 1. Executive Summary
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, doctor management, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. A `doctors` table tracks doctor details, including specialization, and patient associations. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase. The database schema uses `TEXT` for Clerk IDs, makes patient email optional, and includes an optional note in appointments.
+This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, doctor management, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. A `doctors` table tracks doctor details, including specialization, and patient associations. The `patients` table allows cross-organization access by removing `organization_id` and includes a `medical_records` JSONB field for flexible medical data storage. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase.
 
 ## 2. Objectives
 
 - Enable healthcare facilities to manage patient appointments efficiently.
 - Organize departments and doctors within facilities.
+- Allow cross-organization access to patient data with secure controls.
 - Facilitate appointment-related communication with patients via SMS (future phase).
 - Provide subscription plans (Starter, Pro, Business) managed manually by admins.
 - Deliver a secure, scalable, and user-friendly platform for healthcare administrators.
@@ -25,7 +26,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 - **Description**: Facilities can create, update, cancel, and view patient appointments.
 - **Functionality**:
   - Admins and doctors schedule appointments with a doctor (identified by UUID from `doctors` table), specifying a datetime, patient details, and optional note.
-  - Patients identified by name, phone number, and optional email.
+  - Patients identified by name, phone number, optional email, and optional medical records.
   - Appointment status: Pending, Confirmed, Cancelled, Completed.
   - View appointments by day, week, or month in a calendar interface.
 - **Technical Requirements**:
@@ -71,7 +72,19 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Clerk API to fetch user details (name, phone) and membership roles.
   - Sync user creation with organization membership via Clerk webhooks.
 
-### 4.5 Patient Messaging
+### 4.5 Patient Management
+
+- **Description**: Manage patient data accessible across organizations, including medical records.
+- **Functionality**:
+  - Create, update, and view patients with name, phone number, optional email, and optional medical records.
+  - Medical records stored as JSONB with keys: `diagnoses`, `medications`, `allergies`, `immunizations`, `lab_results`, `visit_history`.
+  - All authenticated users can view patients; admins and doctors can manage patients.
+- **Technical Requirements**:
+  - Supabase table: `patients` (`id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `medical_records` (JSONB, nullable), `created_at`, `updated_at`).
+  - UI with shadcn/ui for patient CRUD operations, including JSON input for medical records.
+  - Server Actions for patient management, with role-based access via Clerk API.
+
+### 4.6 Patient Messaging
 
 - **Description**: Send appointment reminders and updates via SMS (future phase).
 - **Functionality**:
@@ -83,7 +96,7 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Supabase edge function to trigger Twilio on appointment CRUD.
   - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `organization_id` (TEXT), `created_at`).
 
-### 4.6 Subscription Plan Management
+### 4.7 Subscription Plan Management
 
 - **Description**: Facilities subscribe to Starter, Pro, or Business plans, manually set by admins in Clerk organization metadata, with records logged in Supabase.
 - **Functionality**:
@@ -116,11 +129,22 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ### Supabase Tables
 
 - **departments**: `id` (UUID), `name` (TEXT), `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`.
-- **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`.
+- **patients**: `id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `medical_records` (JSONB, nullable), `created_at`, `updated_at`.
 - **doctors**: `id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `specialization` (TEXT, nullable), `created_at`, `updated_at`.
 - **appointments**: `id` (UUID), `patient_id` (UUID, fk to patients.id), `doctor_id` (UUID, fk to doctors.id), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status` (TEXT), `organization_id` (TEXT), `created_at`, `updated_at`, `note` (TEXT, nullable).
 - **message_logs**: `id` (UUID), `appointment_id` (UUID, fk to appointments.id), `patient_phone` (TEXT), `message` (TEXT), `status` (TEXT), `organization_id` (TEXT), `created_at`.
 - **billing_logs**: `id` (UUID), `organization_id` (TEXT), `plan` (TEXT), `amount` (NUMERIC), `paytm_transaction_id` (TEXT), `status` (TEXT), `created_at`.
+
+### Medical Records Structure
+
+The `medical_records` JSONB field in `patients` includes:
+
+- `diagnoses`: Array of objects (`condition`, `date_diagnosed`, `notes`).
+- `medications`: Array of objects (`name`, `dosage`, `frequency`, `start_date`).
+- `allergies`: Array of objects (`allergen`, `reaction`).
+- `immunizations`: Array of objects (`vaccine`, `date`, `notes`).
+- `lab_results`: Array of objects (`test`, `result`, `date`, `notes`).
+- `visit_history`: Array of objects (`date`, `reason`, `notes`).
 
 ### Clerk Metadata
 
@@ -145,9 +169,10 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 ## 7. User Interface
 
 - **Dashboard**: Overview of appointments, department stats, doctor stats (including specialization), plan status (`plan_expires_at`, `plan_status`), and staff (via Clerk API).
-- **Appointments Page**: Calendar view, scheduling form (with datetime, note inputs, and doctor selection from `doctors` table), appointment list.
+- **Appointments Page**: Calendar view, scheduling form (with datetime, note inputs, doctor selection from `doctors` table, and optional medical records input), appointment list.
 - **Departments Page**: Department CRUD operations.
 - **Doctors Page**: Doctor CRUD operations, view patient lists and specialization.
+- **Patients Page**: Patient CRUD operations, view and edit medical records.
 - **Staff Page**: Directory of organization members (via Clerk API) with role filters.
 - **Messaging Page**: Message logs and manual messaging interface (future phase).
 - **Billing Page**: View current plan details, billing history; admin UI to manually update plan details (`plan`, `plan_expires_at`, `plan_status`, `transaction_id`).
@@ -159,9 +184,10 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
   - Clerk for authentication and role-based access via organization memberships.
   - Supabase Row-Level Security (RLS) with validation deferred to application logic via Clerk API.
   - Restrict `OrganizationPrivateMetadata` (`transaction_id`) to server-side access.
+  - Implement audit logging for patient data access.
 - **Performance**:
   - Optimize Next.js with SSG/SSR and Server Actions for data fetching.
-  - Supabase queries with indexes on `organization_id`.
+  - Supabase queries with indexes on `patient_id` and JSONB GIN index on `medical_records` if needed.
 - **Scalability**:
   - Supabase for database scalability.
   - Twilio for reliable messaging (future phase).
@@ -192,62 +218,4 @@ This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform desig
 
 - Set up Next.js with TypeScript, Tailwind CSS, shadcn/ui.
 - Integrate Clerk for organization authentication and membership roles.
-- Configure Supabase with schema, RLS, and `@supabase/ssr`.
-- Build login/signup with organization membership flows.
-- Set up Clerk webhooks for organization events.
-
-### Phase 2: Core Features (4 weeks)
-
-- Implement appointment, department, and doctor management with Server Actions.
-- Set up Supabase edge functions for plan status checks.
-
-### Phase 3: Messaging and Billing (3 weeks)
-
-- Prepare for Twilio integration (future phase).
-- Implement admin UI for manual plan updates and doctor management in Clerk.
-- Add Framer Motion animations.
-
-### Phase 4: Testing and Launch (2 weeks)
-
-- Test Clerk, Supabase, and API integrations.
-- Verify RLS and role-based access via Clerk API.
-- Conduct user acceptance testing.
-- Deploy to Vercel and Supabase.
-- Monitor usage and feedback.
-
-## 11. Success Metrics
-
-- **User Adoption**: 10 facilities onboarded within 3 months.
-- **Engagement**: 80% of facilities scheduling 50+ appointments/month.
-- **Billing Accuracy**: 100% accuracy in manual plan assignments.
-- **Reliability**: 99% uptime for database operations.
-- **User Satisfaction**: CSAT score of 4/5.
-
-## 12. Risks and Mitigations
-
-- **Risk**: Clerk-Supabase sync complexity.
-  - **Mitigation**: Use Clerk webhooks and test thoroughly.
-- **Risk**: Manual billing errors.
-  - **Mitigation**: Implement admin UI with validation and audit logs in `billing_logs`.
-- **Risk**: Role-based access without user metadata.
-  - **Mitigation**: Use Clerk API to fetch membership roles; implement role-checking endpoint.
-- **Risk**: UI/UX complexity.
-  - **Mitigation**: Use shadcn/ui and conduct usability testing.
-- **Risk**: Data migration for doctor_id.
-  - **Mitigation**: Run migration script to map existing Clerk user IDs to `doctors` table entries, tested thoroughly.
-
-## 13. Future Enhancements
-
-- Integrate Paytm for online payments.
-- Implement Twilio for SMS messaging.
-- Patient self-scheduling portal.
-- EHR integrations (e.g., Epic, Cerner).
-- Advanced analytics.
-- Multi-language support.
-
-## 14. References
-
-- [Clerk-Supabase Integration](https://clerk.com/docs/integrations/databases/supabase)
-- [Clerk Webhooks](https://clerk.com/docs/integrations/webhooks)
-- [Supabase Next.js Quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)
-- Twilio, shadcn/ui, Framer Motion documentation.
+- Configure Sup
