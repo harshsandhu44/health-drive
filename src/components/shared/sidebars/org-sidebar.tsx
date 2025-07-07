@@ -37,6 +37,11 @@ const mainNav = [
     href: "/appointments",
     icon: CalendarIcon,
   },
+  {
+    label: "Doctors",
+    href: "/doctors",
+    icon: User2Icon,
+  },
 ];
 
 export const OrgSidebar = ({
@@ -54,12 +59,6 @@ export const OrgSidebar = ({
       label: "Departments",
       href: "/departments",
       icon: Building2Icon,
-      disabled: !isOrgPro,
-    },
-    {
-      label: "Doctors",
-      href: "/doctors",
-      icon: User2Icon,
       disabled: !isOrgPro,
     },
     {
