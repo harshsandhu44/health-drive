@@ -1,5 +1,7 @@
 "use client";
 
+import { PlusCircleIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { CreateAppointmentModal } from "@/components/appointments/create-appointment-modal";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -10,8 +12,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { PlusCircleIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 
 interface MainNavProps {
   items: {

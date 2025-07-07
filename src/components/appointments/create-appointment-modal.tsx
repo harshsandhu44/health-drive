@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import { fetchDoctorsAction } from "@/app/actions";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,14 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus } from "lucide-react";
-import { NewAppointmentForm } from "./new-appointment-form";
-import { ExistingPatientAppointmentForm } from "./existing-patient-appointment-form";
-import { fetchDoctorsAction } from "@/app/actions";
 import { Doctor } from "@/types/appointment";
-import { toast } from "sonner";
+import { ExistingPatientAppointmentForm } from "./existing-patient-appointment-form";
+import { NewAppointmentForm } from "./new-appointment-form";
 
 interface CreateAppointmentModalProps {
   onAppointmentCreated?: () => void;

@@ -1,10 +1,10 @@
+import { PlusIcon } from "lucide-react";
 import { fetchAppointmentsAction } from "@/app/actions";
-import { DataTable } from "@/components/ui/data-table";
 import { appointmentColumns } from "@/components/appointments/appointment-columns";
-import { Appointment } from "@/types/appointment";
 import { CreateAppointmentModal } from "@/components/appointments/create-appointment-modal";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { DataTable } from "@/components/ui/data-table";
+import { Appointment } from "@/types/appointment";
 
 const AppointmentsPage = async () => {
   // Fetch all appointments

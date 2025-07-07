@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { toast } from "sonner";
+import {
+  createExistingPatientAppointmentAction,
+  createExistingPatientAppointmentModalAction,
+  fetchDoctorsAction,
+  fetchPatientsAction,
+} from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,16 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -27,20 +25,22 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "sonner";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
-  createExistingPatientAppointmentAction,
-  createExistingPatientAppointmentModalAction,
-  fetchDoctorsAction,
-  fetchPatientsAction,
-} from "@/app/actions";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { Doctor, Patient } from "@/types/appointment";
 
 interface ExistingPatientAppointmentFormProps {

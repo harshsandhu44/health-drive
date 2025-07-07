@@ -1,8 +1,8 @@
-import { NewAppointmentForm } from "@/components/appointments/new-appointment-form";
-import { ExistingPatientAppointmentForm } from "@/components/appointments/existing-patient-appointment-form";
 import { fetchDoctorsAction } from "@/app/actions";
-import { Doctor } from "@/types/appointment";
+import { ExistingPatientAppointmentForm } from "@/components/appointments/existing-patient-appointment-form";
+import { NewAppointmentForm } from "@/components/appointments/new-appointment-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Doctor } from "@/types/appointment";
 
 const NewAppointmentPage = async () => {
   // Fetch doctors from doctors table

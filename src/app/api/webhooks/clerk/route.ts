@@ -1,6 +1,6 @@
-import { Webhook } from "svix";
 import { createClient } from "@supabase/supabase-js"; // Use direct client for webhooks
 import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 
 export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET!;
@@ -73,7 +73,10 @@ export async function POST(req: Request) {
       }
 
       default:
-        console.log(`Unhandled webhook event: ${type}`);
+        // Log unhandled webhook events for debugging (consider using proper logging service)
+        if (process.env.NODE_ENV === "development") {
+          console.warn(`Unhandled webhook event: ${type}`);
+        }
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

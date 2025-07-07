@@ -1,5 +1,4 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -7,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface PhoneInputProps {
   value?: string;
@@ -77,23 +77,27 @@ const PhoneNumberInput = React.forwardRef<HTMLDivElement, PhoneInputProps>(
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newPhoneNumber = e.target.value.replace(/\D/g, ""); // Only allow digits
       setPhoneNumber(newPhoneNumber);
-      const fullNumber = `${selectedCountry.code}${newPhoneNumber}`;
-      onChange?.(fullNumber);
+      if (selectedCountry) {
+        const fullNumber = `${selectedCountry.code}${newPhoneNumber}`;
+        onChange?.(fullNumber);
+      }
     };
 
     return (
       <div ref={ref} className={cn("flex gap-2", className)} {...props}>
         <Select
-          value={selectedCountry.code}
+          value={selectedCountry?.code ?? countryCodes[0]!.code}
           onValueChange={handleCountryChange}
-          disabled={disabled}
+          disabled={disabled ?? false}
         >
           <SelectTrigger className="w-[140px]">
             <SelectValue>
-              <div className="flex items-center gap-2">
-                <span>{selectedCountry.flag}</span>
-                <span className="text-sm">{selectedCountry.code}</span>
-              </div>
+              {selectedCountry && (
+                <div className="flex items-center gap-2">
+                  <span>{selectedCountry.flag}</span>
+                  <span className="text-sm">{selectedCountry.code}</span>
+                </div>
+              )}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>

@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { fetchDoctorsAction } from "@/app/actions";
-import { DataTable } from "@/components/ui/data-table";
 import { doctorColumns } from "@/components/doctors/doctor-columns";
-import { Doctor } from "@/types/appointment";
 import { NewDoctorModal } from "@/components/doctors/new-doctor-modal";
+import { DataTable } from "@/components/ui/data-table";
+import { Doctor } from "@/types/appointment";
 
 const DoctorsPage = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);

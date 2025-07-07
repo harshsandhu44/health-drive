@@ -1,10 +1,10 @@
 "use client";
 
+import { OrganizationSwitcher, UserButton, useUser } from "@clerk/nextjs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { OrganizationSwitcher, UserButton, useUser } from "@clerk/nextjs";
 
 export const OrgHeader = () => {
   const { user } = useUser();

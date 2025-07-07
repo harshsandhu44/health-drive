@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import { createDoctorAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,8 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import { createDoctorAction } from "@/app/actions";
 
 interface NewDoctorFormProps {
   onSuccess?: () => void;

@@ -1,9 +1,10 @@
 "use server";
 
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth, clerkClient } from "@clerk/nextjs/server";
 import { createServerClient } from "@/lib/db/server";
+import { handleServerError, AppError } from "@/lib/utils";
 import {
   CreateAppointmentData,
   Appointment,
@@ -16,7 +17,7 @@ export async function fetchAppointmentsAction(): Promise<Appointment[]> {
   try {
     const { orgId } = await auth();
     if (!orgId) {
-      throw new Error("Unauthorized");
+      throw new AppError("Access denied", "UNAUTHORIZED", 401);
     }
 
     const supabase = await createServerClient();
@@ -34,14 +35,12 @@ export async function fetchAppointmentsAction(): Promise<Appointment[]> {
       .order("appointment_datetime", { ascending: true });
 
     if (error) {
-      console.error("Error fetching appointments:", error);
-      throw new Error("Failed to fetch appointments");
+      throw new AppError("Failed to fetch appointments", "DATABASE_ERROR", 500);
     }
 
     return data || [];
   } catch (error) {
-    console.error("Error fetching appointments:", error);
-    throw error;
+    throw handleServerError(error, "fetchAppointmentsAction");
   }
 }
 
@@ -238,13 +237,12 @@ export async function createAppointmentAction(formData: FormData) {
 
     const appointmentData: CreateAppointmentData = {
       patient_name: formData.get("patient_name") as string,
-      patient_email: patient_email || undefined,
+      patient_email: patient_email?.trim() || undefined,
       patient_phone: formData.get("patient_phone") as string,
-      appointment_note: appointment_note || undefined,
+      appointment_note: appointment_note?.trim() || undefined,
       doctor_id: formData.get("doctor_id") as string,
       date: formData.get("date") as string,
       time: formData.get("time") as string,
-      status: "confirmed",
     };
 
     // Validate required fields

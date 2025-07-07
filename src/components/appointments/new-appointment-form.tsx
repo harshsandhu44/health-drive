@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import { toast } from "sonner";
+import {
+  createAppointmentAction,
+  createAppointmentModalAction,
+  fetchDoctorsAction,
+  checkPhoneNumberExistsAction,
+} from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneNumberInput } from "@/components/ui/phone-input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,14 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { isValidPhoneNumber } from "react-phone-number-input";
-import {
-  createAppointmentAction,
-  createAppointmentModalAction,
-  fetchDoctorsAction,
-  checkPhoneNumberExistsAction,
-} from "@/app/actions";
+import { Textarea } from "@/components/ui/textarea";
 import { Doctor } from "@/types/appointment";
 
 interface NewAppointmentFormProps {
@@ -70,8 +70,6 @@ export function NewAppointmentForm({
       const cleanPhone = phoneNumber.replace(/\D/g, "");
 
       if (isValidPhoneNumber(phoneNumber)) {
-        console.log("**** phoneNumber", phoneNumber, cleanPhone);
-
         setPhoneValidation({
           isChecking: true,
           exists: false,
@@ -85,7 +83,7 @@ export function NewAppointmentForm({
               isChecking: false,
               exists: true,
               message:
-                "A patient with this phone number already exists. Please use the 'Existing Patient' tab.",
+                "A patient with this phone number already exists. Please use the &apos;Existing Patient&apos; tab.",
             });
           } else {
             setPhoneValidation({
@@ -160,14 +158,24 @@ export function NewAppointmentForm({
         <form action={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="patient_name">Patient Name</Label>
+              <Label htmlFor="patient_name">
+                Patient Name{" "}
+                <span className="text-red-500" aria-label="required">
+                  *
+                </span>
+              </Label>
               <Input
                 id="patient_name"
                 name="patient_name"
                 type="text"
                 placeholder="Enter patient name"
                 required
+                aria-describedby="patient_name_help"
+                autoComplete="name"
               />
+              <div id="patient_name_help" className="sr-only">
+                Enter the full name of the patient
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="patient_email">Patient Email (Optional)</Label>
@@ -176,17 +184,29 @@ export function NewAppointmentForm({
                 name="patient_email"
                 type="email"
                 placeholder="Enter patient email"
+                aria-describedby="patient_email_help"
+                autoComplete="email"
               />
+              <div id="patient_email_help" className="sr-only">
+                Enter the patient&apos;s email address for appointment
+                confirmations
+              </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="patient_phone">Patient Phone</Label>
+            <Label htmlFor="patient_phone">
+              Patient Phone{" "}
+              <span className="text-red-500" aria-label="required">
+                *
+              </span>
+            </Label>
             <PhoneNumberInput
               value={phoneNumber}
               onChange={setPhoneNumber}
               placeholder="Enter patient phone number"
               defaultCountry="IN"
+              aria-describedby="patient_phone_help patient_phone_validation"
             />
             <input
               type="hidden"
@@ -195,8 +215,14 @@ export function NewAppointmentForm({
               value={phoneNumber}
               required
             />
+            <div id="patient_phone_help" className="sr-only">
+              Enter the patient&apos;s phone number for appointment reminders
+            </div>
             {phoneValidation.message && (
               <div
+                id="patient_phone_validation"
+                role="status"
+                aria-live="polite"
                 className={`text-sm ${
                   phoneValidation.exists
                     ? "text-red-600"

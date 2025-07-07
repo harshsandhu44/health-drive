@@ -1,10 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Doctor } from "@/types/appointment";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { MoreHorizontal, Edit, Trash2, Phone, MapPin } from "lucide-react";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Phone, MapPin } from "lucide-react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { Doctor } from "@/types/appointment";
 
 export const doctorColumns: ColumnDef<Doctor>[] = [
   {

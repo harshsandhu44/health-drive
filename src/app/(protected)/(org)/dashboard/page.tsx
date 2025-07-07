@@ -1,3 +1,7 @@
+import { currentUser } from "@clerk/nextjs/server";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
+import { fetchTodaysAppointmentsAction } from "@/app/actions";
+import { appointmentColumns } from "@/components/appointments/appointment-columns";
 import {
   Card,
   CardContent,
@@ -5,11 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { currentUser } from "@clerk/nextjs/server";
-import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
-import { fetchTodaysAppointmentsAction } from "@/app/actions";
 import { DataTable } from "@/components/ui/data-table";
-import { appointmentColumns } from "@/components/appointments/appointment-columns";
 import { Appointment } from "@/types/appointment";
 
 const DashboardPage = async () => {

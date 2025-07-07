@@ -1,3 +1,5 @@
+import type { AppointmentStatus } from "./globals";
+
 export interface Patient {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ export interface Appointment {
   patient_id: string;
   doctor_id: string;
   appointment_datetime: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: AppointmentStatus;
   note?: string;
   organization_id: string;
   created_at: string;
@@ -36,11 +38,11 @@ export interface Appointment {
 
 export interface CreateAppointmentData {
   patient_name: string;
-  patient_email?: string;
+  patient_email?: string | undefined;
   patient_phone: string;
-  appointment_note?: string;
+  appointment_note?: string | undefined;
   doctor_id: string;
   date: string;
   time: string;
-  status?: "pending" | "confirmed" | "cancelled" | "completed";
+  status?: AppointmentStatus;
 }

@@ -1,16 +1,6 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
+import { useUser } from "@clerk/nextjs";
 import {
   BarChartIcon,
   Building2Icon,
@@ -22,10 +12,20 @@ import {
   Users2Icon,
 } from "lucide-react";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import { MainNav } from "./main-nav";
-import { OrgNav } from "./org-nav";
-import { useUser } from "@clerk/nextjs";
 import { OrgFooter } from "./org-footer";
+import { OrgNav } from "./org-nav";
 
 const mainNav = [
   {
@@ -49,9 +49,9 @@ export const OrgSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   const { user } = useUser();
-  const isOrgAdmin = user?.organizationMemberships[0].role === "org:admin";
+  const isOrgAdmin = user?.organizationMemberships?.[0]?.role === "org:admin";
   const orgMetadata =
-    user?.organizationMemberships[0].organization.publicMetadata;
+    user?.organizationMemberships?.[0]?.organization?.publicMetadata;
   const isOrgPro =
     orgMetadata?.plan === "pro" || orgMetadata?.plan === "business";
 
