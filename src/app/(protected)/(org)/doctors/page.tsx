@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { fetchDoctorsAction } from "@/app/actions";
-import { doctorColumns } from "@/components/doctors/doctor-columns";
+import { createDoctorColumns } from "@/components/doctors/doctor-columns";
 import { NewDoctorModal } from "@/components/doctors/new-doctor-modal";
 import { DataTable } from "@/components/ui/data-table";
 import { Doctor } from "@/types/appointment";
@@ -27,10 +27,26 @@ const DoctorsPage = () => {
     fetchDoctors();
   }, []);
 
-  const handleDoctorCreated = () => {
+  const handleDoctorCreated = useCallback(() => {
     // Refresh the doctors list after a new doctor is created
     fetchDoctors();
-  };
+  }, []);
+
+  const handleDoctorUpdated = useCallback(() => {
+    // Refresh the doctors list after a doctor is updated
+    fetchDoctors();
+  }, []);
+
+  const handleDoctorDeleted = useCallback(() => {
+    // Refresh the doctors list after a doctor is deleted
+    fetchDoctors();
+  }, []);
+
+  // Memoize columns with callbacks to prevent unnecessary re-renders
+  const doctorColumns = useMemo(
+    () => createDoctorColumns(handleDoctorUpdated, handleDoctorDeleted),
+    [handleDoctorUpdated, handleDoctorDeleted]
+  );
 
   return (
     <div className="space-y-6">

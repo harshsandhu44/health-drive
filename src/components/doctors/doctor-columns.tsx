@@ -3,6 +3,19 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Edit, Trash2, Phone, MapPin } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { toast } from "sonner";
+import { deleteDoctorAction } from "@/app/actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
@@ -15,8 +28,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Doctor } from "@/types/appointment";
+import { EditDoctorModal } from "./edit-doctor-modal";
 
-export const doctorColumns: ColumnDef<Doctor>[] = [
+// Delete doctor function
+const handleDeleteDoctor = async (
+  doctorId: string,
+  onDoctorDeleted?: () => void
+) => {
+  try {
+    await deleteDoctorAction(doctorId);
+    toast.success("Doctor deleted successfully!");
+    onDoctorDeleted?.();
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to delete doctor";
+    toast.error(errorMessage);
+    console.error("Error deleting doctor:", error);
+  }
+};
+
+export const createDoctorColumns = (
+  onDoctorUpdated?: () => void,
+  onDoctorDeleted?: () => void
+): ColumnDef<Doctor>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -133,17 +167,55 @@ export const doctorColumns: ColumnDef<Doctor>[] = [
               Copy doctor ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit doctor
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete doctor
-            </DropdownMenuItem>
+            <EditDoctorModal
+              doctor={doctor}
+              onDoctorUpdated={onDoctorUpdated}
+              triggerButton={
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit doctor
+                </DropdownMenuItem>
+              }
+            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete doctor
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    the doctor &quot;{doctor.name}&quot; and remove all
+                    associated data. The doctor cannot be deleted if they have
+                    existing appointments.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      handleDeleteDoctor(doctor.id, onDoctorDeleted)
+                    }
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );
     },
   },
 ];
+
+// Default columns for backward compatibility
+export const doctorColumns = createDoctorColumns();

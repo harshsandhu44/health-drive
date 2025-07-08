@@ -767,3 +767,106 @@ export async function createDoctorAction(formData: FormData) {
     throw error;
   }
 }
+
+// Update doctor
+export async function updateDoctorAction(doctorId: string, formData: FormData) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const name = formData.get("name") as string;
+    const phoneNumber = formData.get("phone_number") as string;
+    const address = formData.get("address") as string;
+    const specialization = formData.get("specialization") as string;
+
+    // Validate required fields
+    if (!name || !phoneNumber) {
+      throw new Error("Name and phone number are required");
+    }
+
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase
+      .from("doctors")
+      .update({
+        name,
+        phone_number: phoneNumber,
+        address: address || null,
+        specialization: specialization || null,
+      })
+      .eq("id", doctorId)
+      .eq("organization_id", orgId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating doctor:", error);
+      throw new Error("Failed to update doctor");
+    }
+
+    if (!data) {
+      throw new Error("Doctor not found");
+    }
+
+    // Revalidate the doctors page and dashboard
+    revalidatePath("/doctors");
+    revalidatePath("/dashboard");
+
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error in updateDoctorAction:", error);
+    throw error;
+  }
+}
+
+// Delete doctor
+export async function deleteDoctorAction(doctorId: string) {
+  try {
+    const { orgId, userId } = await auth();
+    if (!orgId || !userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const supabase = await createServerClient();
+
+    // Check if doctor has any appointments
+    const { data: appointments, error: appointmentsError } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("doctor_id", doctorId)
+      .eq("organization_id", orgId);
+
+    if (appointmentsError) {
+      console.error("Error checking doctor appointments:", appointmentsError);
+      throw new Error("Failed to check doctor appointments");
+    }
+
+    if (appointments && appointments.length > 0) {
+      throw new Error(
+        "Cannot delete doctor. Doctor has existing appointments. Please cancel or reassign all appointments first."
+      );
+    }
+
+    const { error } = await supabase
+      .from("doctors")
+      .delete()
+      .eq("id", doctorId)
+      .eq("organization_id", orgId);
+
+    if (error) {
+      console.error("Error deleting doctor:", error);
+      throw new Error("Failed to delete doctor");
+    }
+
+    // Revalidate the doctors page and dashboard
+    revalidatePath("/doctors");
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error in deleteDoctorAction:", error);
+    throw error;
+  }
+}
