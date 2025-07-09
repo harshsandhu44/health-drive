@@ -1,5 +1,6 @@
 import { PWADebug } from "@/components/shared/pwa-debug";
 import { PWAStatus } from "@/components/shared/pwa-status";
+import { RealtimeTest } from "@/components/shared/realtime-test";
 
 export default function DebugPage() {
   return (
@@ -12,6 +13,7 @@ export default function DebugPage() {
       </div>
 
       <div className="grid gap-6">
+        <RealtimeTest />
         <PWAStatus />
         <PWADebug />
       </div>
