@@ -320,14 +320,14 @@ export async function createAppointmentAction(formData: FormData) {
       patient = newPatient;
     }
 
-    // Create the appointment
+    // Create the appointment with pending status by default
     const { error: appointmentError } = await supabase
       .from("appointments")
       .insert({
         patient_id: patient.id,
         doctor_id: appointmentData.doctor_id,
         appointment_datetime: utcDateTime,
-        status: appointmentData.status || "confirmed",
+        status: appointmentData.status || "pending",
         note: appointmentData.appointment_note,
         organization_id: orgId,
       });
@@ -368,7 +368,7 @@ export async function createAppointmentModalAction(formData: FormData) {
       doctor_id: formData.get("doctor_id") as string,
       date: formData.get("date") as string,
       time: formData.get("time") as string,
-      status: "confirmed",
+      status: "pending",
     };
 
     // Validate required fields
@@ -453,7 +453,7 @@ export async function createAppointmentModalAction(formData: FormData) {
         patient_id: patient.id,
         doctor_id: appointmentData.doctor_id,
         appointment_datetime: utcDateTime,
-        status: appointmentData.status || "confirmed",
+        status: appointmentData.status || "pending",
         note: appointmentData.appointment_note,
         organization_id: orgId,
       });
@@ -508,7 +508,7 @@ export async function createExistingPatientAppointmentModalAction(
         patient_id,
         doctor_id,
         appointment_datetime: utcDateTime,
-        status: "confirmed",
+        status: "pending",
         note: appointment_note || null,
         organization_id: orgId,
       });
@@ -559,14 +559,14 @@ export async function createExistingPatientAppointmentAction(
 
     const supabase = await createServerClient();
 
-    // Create the appointment
+    // Create the appointment with pending status by default
     const { error: appointmentError } = await supabase
       .from("appointments")
       .insert({
         patient_id,
         doctor_id,
         appointment_datetime: utcDateTime,
-        status: "confirmed",
+        status: "pending",
         note: appointment_note || null,
         organization_id: orgId,
       });
