@@ -12,6 +12,7 @@ import {
   Users2Icon,
 } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Sidebar,
@@ -101,7 +102,14 @@ export const OrgSidebar = ({
                 "justify-start"
               )}
             >
-              <Link href="/dashboard">Health Drive</Link>
+              <Link href="/dashboard">
+                Health Drive{" "}
+                {process.env.NODE_ENV === "development" && (
+                  <Badge variant="outline" className="ml-2">
+                    DEV
+                  </Badge>
+                )}
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
