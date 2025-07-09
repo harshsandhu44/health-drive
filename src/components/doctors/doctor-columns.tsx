@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Edit, Trash2, Phone, MapPin } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
-import { toast } from "sonner";
 import { deleteDoctorAction } from "@/app/actions";
 import {
   AlertDialog,
@@ -27,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/lib/toast-with-sound";
 import { Doctor } from "@/types/appointment";
 import { EditDoctorModal } from "./edit-doctor-modal";
 

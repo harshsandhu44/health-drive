@@ -5,7 +5,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
-import { toast } from "sonner";
 import {
   updateAppointmentStatusAction,
   deleteAppointmentAction,
@@ -21,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/lib/toast-with-sound";
 import { Appointment } from "@/types/appointment";
 import type { AppointmentStatus } from "@/types/globals";
 import { EditAppointmentModal } from "./edit-appointment-modal";
