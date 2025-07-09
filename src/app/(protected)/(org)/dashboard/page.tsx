@@ -2,8 +2,6 @@ import { currentUser } from "@clerk/nextjs/server";
 import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { fetchTodaysAppointmentsAction } from "@/app/actions";
 import { appointmentColumns } from "@/components/appointments/appointment-columns";
-import { PWADebug } from "@/components/shared/pwa-debug";
-import { PWAStatus } from "@/components/shared/pwa-status";
 import {
   Card,
   CardContent,
@@ -98,29 +96,22 @@ const DashboardPage = async () => {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Today&apos;s Appointments</CardTitle>
-            <CardDescription>
-              View and manage appointments scheduled for today
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={appointmentColumns}
-              data={todaysAppointments}
-              searchKey="patient_phone"
-              searchPlaceholder="Search patients with phone number..."
-            />
-          </CardContent>
-        </Card>
-
-        <div className="space-y-4">
-          <PWAStatus />
-          <PWADebug />
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Today&apos;s Appointments</CardTitle>
+          <CardDescription>
+            View and manage appointments scheduled for today
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={appointmentColumns}
+            data={todaysAppointments}
+            searchKey="patient_phone"
+            searchPlaceholder="Search patients with phone number..."
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };

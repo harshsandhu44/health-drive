@@ -8,6 +8,7 @@ import {
   CreditCardIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
+  TerminalIcon,
   User2Icon,
   Users2Icon,
 } from "lucide-react";
@@ -44,6 +45,15 @@ const mainNav = [
     href: "/doctors",
     icon: User2Icon,
   },
+  ...(process.env.NODE_ENV === "development"
+    ? [
+        {
+          label: "Debug",
+          href: "/debug",
+          icon: TerminalIcon,
+        },
+      ]
+    : []),
 ];
 
 export const OrgSidebar = ({
