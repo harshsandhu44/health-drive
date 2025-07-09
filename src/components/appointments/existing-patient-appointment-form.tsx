@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { toast } from "sonner";
 import {
   createExistingPatientAppointmentAction,
   createExistingPatientAppointmentModalAction,
@@ -40,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/lib/toast-with-sound";
 import { cn } from "@/lib/utils";
 import { Doctor, Patient } from "@/types/appointment";
 

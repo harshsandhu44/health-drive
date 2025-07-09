@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isValidPhoneNumber } from "react-phone-number-input";
-import { toast } from "sonner";
 import {
+  checkPhoneNumberExistsAction,
   createAppointmentAction,
   createAppointmentModalAction,
   fetchDoctorsAction,
-  checkPhoneNumberExistsAction,
 } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/lib/toast-with-sound";
 import { Doctor } from "@/types/appointment";
 
 interface NewAppointmentFormProps {

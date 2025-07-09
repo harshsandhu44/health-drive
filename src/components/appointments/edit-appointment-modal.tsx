@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Edit2 } from "lucide-react";
-import { toast } from "sonner";
 import { fetchDoctorsAction, updateAppointmentAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/lib/toast-with-sound";
 import { Doctor, Appointment } from "@/types/appointment";
 
 interface EditAppointmentModalProps {
