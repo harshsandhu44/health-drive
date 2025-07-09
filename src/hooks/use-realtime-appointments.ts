@@ -4,6 +4,7 @@ import { useAuth, useOrganization } from "@clerk/nextjs";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
 import { useSupabaseClient } from "@/lib/db/client";
+import { NotificationService } from "@/lib/notification-service";
 import { toast } from "@/lib/toast-with-sound";
 import { Appointment } from "@/types/appointment";
 
@@ -87,6 +88,9 @@ export function useRealtimeAppointments({
 
                   // Show notification for new appointments
                   if (enableNotifications) {
+                    const notificationService =
+                      NotificationService.getInstance();
+
                     if (newAppointment.status === "pending") {
                       toast.info(
                         `New pending appointment for ${
@@ -100,6 +104,16 @@ export function useRealtimeAppointments({
                         }`
                       );
                     }
+
+                    // Show push notification
+                    notificationService.showNewAppointmentNotification(
+                      newAppointment
+                    );
+
+                    // Schedule appointment reminders
+                    notificationService.scheduleAppointmentReminders(
+                      newAppointment
+                    );
                   }
                 } else if (payload.eventType === "UPDATE") {
                   // Handle appointment update
@@ -118,9 +132,25 @@ export function useRealtimeAppointments({
                   if (enableNotifications) {
                     const oldAppointment = payload.old as Appointment;
                     if (oldAppointment.status !== updatedAppointment.status) {
+                      const notificationService =
+                        NotificationService.getInstance();
+
                       toast.info(
                         `Appointment status changed to ${updatedAppointment.status}`
                       );
+
+                      // Show push notification for status change
+                      notificationService.showAppointmentStatusChangeNotification(
+                        updatedAppointment,
+                        oldAppointment.status
+                      );
+
+                      // Re-schedule reminders if status changed to confirmed
+                      if (updatedAppointment.status === "confirmed") {
+                        notificationService.scheduleAppointmentReminders(
+                          updatedAppointment
+                        );
+                      }
                     }
                   }
                 } else if (payload.eventType === "DELETE") {
