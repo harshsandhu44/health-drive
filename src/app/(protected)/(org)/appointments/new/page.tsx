@@ -18,8 +18,8 @@ const NewAppointmentPage = async () => {
       <div>
         <h2 className="text-2xl font-bold">New Appointment</h2>
         <p className="text-muted-foreground">
-          Create a new appointment. All appointments created here are
-          automatically confirmed.
+          Create a new appointment. All appointments are created with pending
+          status by default.
         </p>
       </div>
 
