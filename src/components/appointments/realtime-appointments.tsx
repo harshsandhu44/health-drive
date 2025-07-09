@@ -3,13 +3,13 @@
 import { PlusIcon, WifiOffIcon } from "lucide-react";
 import { appointmentColumns } from "@/components/appointments/appointment-columns";
 import { CreateAppointmentModal } from "@/components/appointments/create-appointment-modal";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { useAppointmentNotifications } from "@/hooks/use-appointment-notifications";
 import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { Appointment } from "@/types/appointment";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface RealtimeAppointmentsProps {
   initialAppointments: Appointment[];

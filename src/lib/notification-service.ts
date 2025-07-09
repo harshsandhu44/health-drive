@@ -5,6 +5,7 @@ import { Appointment } from "@/types/appointment";
 interface NotificationData {
   title: string;
   body: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   tag?: string;
 }
@@ -72,7 +73,9 @@ export class NotificationService {
     const now = new Date();
 
     // Skip past appointments
-    if (appointmentTime <= now) return;
+    if (appointmentTime <= now) {
+      return;
+    }
 
     const timeDiff = appointmentTime.getTime() - now.getTime();
     const appointmentId = appointment.id;

@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useAuth, useOrganization } from "@clerk/nextjs";
 import { RealtimeChannel } from "@supabase/supabase-js";
-import { useEffect, useRef, useState } from "react";
 import { useSupabaseClient } from "@/lib/db/client";
 import { NotificationService } from "@/lib/notification-service";
 import { toast } from "@/lib/toast-with-sound";
@@ -41,7 +41,7 @@ export function useRealtimeAppointments({
   const orgId = organization?.id;
 
   useEffect(() => {
-    if (!orgId || !supabase) return;
+    if (!orgId || !supabase) {return;}
 
     let mounted = true;
 
@@ -72,7 +72,7 @@ export function useRealtimeAppointments({
               filter: `organization_id=eq.${orgId}`,
             },
             async (payload) => {
-              if (!mounted) return;
+              if (!mounted) {return;}
 
               console.info("Realtime appointment change:", payload);
 
@@ -177,7 +177,7 @@ export function useRealtimeAppointments({
             }
           )
           .subscribe(async (status) => {
-            if (!mounted) return;
+            if (!mounted) {return;}
 
             console.info("Realtime subscription status:", status);
 

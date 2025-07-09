@@ -16,7 +16,7 @@ export function useAppointmentNotifications({
   const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   useEffect(() => {
-    if (!enabled || !appointments.length) return;
+    if (!enabled || !appointments.length) {return;}
 
     const now = new Date();
     const timers = timersRef.current;
@@ -30,7 +30,7 @@ export function useAppointmentNotifications({
       const appointmentId = appointment.id;
 
       // Skip past appointments
-      if (appointmentTime <= now) return;
+      if (appointmentTime <= now) {return;}
 
       const timeDiff = appointmentTime.getTime() - now.getTime();
 

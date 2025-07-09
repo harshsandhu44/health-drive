@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,10 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { NotificationService } from "@/lib/notification-service";
-import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { useAppointmentNotifications } from "@/hooks/use-appointment-notifications";
+import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
+import { NotificationService } from "@/lib/notification-service";
 import { Appointment } from "@/types/appointment";
 
 export function RealtimeTest() {

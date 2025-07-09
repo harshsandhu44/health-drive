@@ -1,11 +1,9 @@
+import { useMemo } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
-import { useMemo } from "react";
 
 // Create a client-side Supabase client with auth
 export function useSupabaseClient() {
-  const { getToken } = useAuth();
-
   return useMemo(
     () =>
       createClient(
@@ -34,9 +32,12 @@ export function useSupabaseClient() {
 }
 
 // Helper to create client with auth token
-export async function createClientWithAuth() {
+export function useCreateClientWithAuth() {
   const { getToken } = useAuth();
-  const token = await getToken();
+  const token = useMemo(async () => {
+    const token = await getToken();
+    return token;
+  }, [getToken]);
 
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
