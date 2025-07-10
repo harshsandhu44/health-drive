@@ -1,13 +1,12 @@
 # HealthDrive ASCII Wireframes
 
-Below are ASCII wireframes for each page of the HealthDrive application, representing the layout for Dashboard, Appointments, Doctors, Analytics, and Help pages.
+Below are updated ASCII wireframes for each page of the HealthDrive application, reflecting the removal of the logo and user profile (to be replaced by a sidebar), action buttons for appointments, and updated Add Appointment popup functionality.
 
 ## 1. Dashboard Page
+
 ```
 +--------------------------------------------------+
 | HealthDrive Dashboard                            |
-+--------------------------------------------------+
-| [Logo]                     [User Profile | Logout] |
 +--------------------------------------------------+
 | Analytics Cards                                  |
 | +----------------+ +----------------+ +---------+ |
@@ -16,45 +15,51 @@ Below are ASCII wireframes for each page of the HealthDrive application, represe
 | +----------------+ +----------------+ +---------+ |
 +--------------------------------------------------+
 | Today's Appointments                             |
-| +---------------------------------------------+  |
-| | ID | Patient | Doctor | Time | Status       |  |
-| | 1  | John D  | Dr. A  | 10AM | Confirmed    |  |
-| | 2  | Jane S  | Dr. B  | 11AM | Pending      |  |
-| +---------------------------------------------+  |
+| +------------------------------------------------+ |
+| | ID | Patient | Doctor | Time | Status | Actions  | |
+| | 1  | John D  | Dr. A  | 10AM | Conf.  | [U|C|V]  | |
+| | 2  | Jane S  | Dr. B  | 11AM | Pend.  | [U|C|V]  | |
+| +------------------------------------------------+ |
+| [U: Update Status, C: Cancel, V: View Details]     |
 +--------------------------------------------------+
 ```
 
 ## 2. Appointments Page
+
 ```
 +--------------------------------------------------+
 | Appointments                                     |
 +--------------------------------------------------+
-| [Logo]                     [User Profile | Logout] |
-+--------------------------------------------------+
 | [Add Appointment Button]                         |
 +--------------------------------------------------+
 | All Appointments                                 |
-| +---------------------------------------------+  |
-| | ID | Patient | Doctor | Date  | Time | Status|  |
-| | 1  | John D  | Dr. A  | 7/10  | 10AM | Conf. |  |
-| | 2  | Jane S  | Dr. B  | 7/11  | 11AM | Pend. |  |
-| +---------------------------------------------+  |
+| +------------------------------------------------+ |
+| | ID | Patient | Doctor | Date  | Time | Stat | Act | |
+| | 1  | John D  | Dr. A  | 7/10  | 10AM | Conf |[U|C|V]| |
+| | 2  | Jane S  | Dr. B  | 7/11  | 11AM | Pend |[U|C|V]| |
+| +------------------------------------------------+ |
+| [U: Update Status, C: Cancel, V: View Details]     |
 | [Popup: Add/Edit Appointment]                    |
 | +---------------------------------------------+  |
-| | Patient Phone: [________]                   |  |
-| | Doctor: [Dr. A]  Department: [Cardiology]   |  |
-| | Date: [7/10/25]  Time: [10:00 AM]          |  |
-| | [Save] [Cancel]                            |  |
+| | Search Patient by Phone: [________] [Search]|  |
+| | [ ] Existing Patient: [John D]             |  |
+| | [ ] New Patient:                          |  |
+| |   Name: [________]                        |  |
+| |   Phone: [________]                       |  |
+| |   DOB: [MM/DD/YYYY]                       |  |
+| |   Blood Group: [A+]                       |  |
+| | Doctor: [Dr. A]  Dept: [Cardiology]       |  |
+| | Date: [7/10/25]  Time: [10:00 AM]         |  |
+| | [Save] [Cancel]                           |  |
 | +---------------------------------------------+  |
 +--------------------------------------------------+
 ```
 
 ## 3. Doctors Page
+
 ```
 +--------------------------------------------------+
 | Doctors                                          |
-+--------------------------------------------------+
-| [Logo]                     [User Profile | Logout] |
 +--------------------------------------------------+
 | [Add Doctor Button]                              |
 +--------------------------------------------------+
@@ -76,11 +81,10 @@ Below are ASCII wireframes for each page of the HealthDrive application, represe
 ```
 
 ## 4. Analytics Page
+
 ```
 +--------------------------------------------------+
 | Analytics                                        |
-+--------------------------------------------------+
-| [Logo]                     [User Profile | Logout] |
 +--------------------------------------------------+
 | [Download CSV] [Download PDF]                    |
 +--------------------------------------------------+
@@ -96,11 +100,10 @@ Below are ASCII wireframes for each page of the HealthDrive application, represe
 ```
 
 ## 5. Help Page
+
 ```
 +--------------------------------------------------+
 | Help                                             |
-+--------------------------------------------------+
-| [Logo]                     [User Profile | Logout] |
 +--------------------------------------------------+
 | Contact Support                                  |
 | +---------------------------------------------+  |
