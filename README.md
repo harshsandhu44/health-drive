@@ -97,7 +97,31 @@ This project uses several tools to maintain high code quality:
 - **ESLint**: Linting with rules for TypeScript, React, accessibility, and imports
 - **Prettier**: Code formatting with Tailwind CSS class sorting
 - **TypeScript**: Static type checking
-- **Husky**: Git hooks for pre-commit checks (optional)
+- **Husky**: Git hooks for automated code quality enforcement
+
+### Git Hooks
+
+Automated quality checks run at different Git stages:
+
+- **pre-commit**: Type checking, linting with auto-fix, and formatting
+- **pre-push**: Production build test and type checking
+- **commit-msg**: Enforces conventional commit message format
+
+#### Conventional Commits
+
+All commit messages must follow the format: `type(scope): description`
+
+**Valid types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`,
+`revert`
+
+**Examples**:
+
+```bash
+feat(auth): add user authentication
+fix(ui): resolve button styling issue
+docs: update README installation steps
+chore: update dependencies
+```
 
 ### Best Practices
 
