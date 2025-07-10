@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
+
+import type { Metadata } from "next";
+
 import * as CONSTANTS from "@/lib/contants";
 import "./globals.css";
 

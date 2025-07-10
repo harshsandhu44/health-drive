@@ -1,6 +1,12 @@
 # HealthDrive Supabase Database Schema and Setup
 
-This document outlines the updated Supabase database schema for the HealthDrive B2B SaaS application, including table definitions, relationships, and setup instructions using the `@supabase/ssr` package for Next.js 15. The schema supports the management of organizations, users, doctors, departments, appointments, patients, patient records, and analytics logs, with a focus on real-time updates and privacy for patient data. Updates include using `text` for `organization_id`, `user_id`, `Organizations.id`, `Users.id`, and `Doctors.id` to align with Clerk IDs and autogeneration for `Doctors.id`.
+This document outlines the updated Supabase database schema for the HealthDrive B2B SaaS
+application, including table definitions, relationships, and setup instructions using the
+`@supabase/ssr` package for Next.js 15. The schema supports the management of organizations, users,
+doctors, departments, appointments, patients, patient records, and analytics logs, with a focus on
+real-time updates and privacy for patient data. Updates include using `text` for `organization_id`,
+`user_id`, `Organizations.id`, `Users.id`, and `Doctors.id` to align with Clerk IDs and
+autogeneration for `Doctors.id`.
 
 ## 1. Database Schema
 
@@ -75,7 +81,8 @@ Stores appointment details for scheduling.
   - `patient_id` (uuid, foreign key to `Patients.id`, not null)
   - `date` (date, not null)
   - `time` (time, not null)
-  - `status` (varchar, not null, default: 'pending', options: 'pending', 'confirmed', 'completed', 'cancelled')
+  - `status` (varchar, not null, default: 'pending', options: 'pending', 'confirmed', 'completed',
+    'cancelled')
 - **Purpose**: Manages appointment scheduling and status updates.
 
 #### Patient_Records
@@ -96,7 +103,8 @@ Stores analytics data for reporting.
 - **Fields**:
   - `id` (uuid, primary key, default: `gen_random_uuid()`)
   - `organization_id` (text, foreign key to `Organizations.id`, not null)
-  - `metric_type` (varchar, not null, options: 'total_appointments', 'appointments_per_doctor', 'returning_patients')
+  - `metric_type` (varchar, not null, options: 'total_appointments', 'appointments_per_doctor',
+    'returning_patients')
   - `value` (integer, not null)
   - `timestamp` (timestamp, default: `now()`)
 - **Purpose**: Tracks metrics for real-time analytics.
@@ -128,7 +136,8 @@ Stores analytics data for reporting.
 
 ### 2.2 Create Tables
 
-Use the Supabase SQL Editor or Table Editor to create tables. Below is the updated SQL for each table, reflecting `text` types for Clerk IDs and `Doctors.id`.
+Use the Supabase SQL Editor or Table Editor to create tables. Below is the updated SQL for each
+table, reflecting `text` types for Clerk IDs and `Doctors.id`.
 
 ```sql
 -- Organizations
@@ -372,9 +381,7 @@ export function createSupabaseServerClient() {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         },
       },
     }
@@ -392,7 +399,8 @@ export function createSupabaseClient() {
 
 ### 2.7 Real-Time Configuration
 
-To enable real-time updates in the Next.js app using `@supabase/ssr`, use the client-side client for browser-based subscriptions (since real-time subscriptions are not supported in server components).
+To enable real-time updates in the Next.js app using `@supabase/ssr`, use the client-side client for
+browser-based subscriptions (since real-time subscriptions are not supported in server components).
 
 Example in a client component (e.g., `components/AppointmentsTable.tsx`):
 
@@ -409,14 +417,10 @@ export default function AppointmentsTable({ initialData }) {
     // Subscribe to appointments
     const appointmentChannel = supabase
       .channel("appointments")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "appointments" },
-        (payload) => {
-          console.log("Appointment changed:", payload);
-          // Update UI (e.g., refetch or update state)
-        }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, payload => {
+        console.log("Appointment changed:", payload);
+        // Update UI (e.g., refetch or update state)
+      })
       .subscribe();
 
     // Subscribe to analytics_logs
@@ -425,7 +429,7 @@ export default function AppointmentsTable({ initialData }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "analytics_logs" },
-        (payload) => {
+        payload => {
           console.log("Analytics updated:", payload);
           // Update UI
         }
@@ -463,9 +467,11 @@ export default async function Dashboard() {
 
 ### 2.8 Data Privacy for Patients
 
-- **Phone Number Access**: The `patients` table uses RLS to restrict access to records based on phone number matches within the organization’s appointments.
+- **Phone Number Access**: The `patients` table uses RLS to restrict access to records based on
+  phone number matches within the organization’s appointments.
 - **Validation**: Sanitize phone number input in the Next.js app to prevent SQL injection.
-- **Search Functionality**: Implement a patient search query using `@supabase/ssr` in a server context:
+- **Search Functionality**: Implement a patient search query using `@supabase/ssr` in a server
+  context:
 
 ```javascript
 import { createSupabaseServerClient } from "@/lib/supabase";
@@ -502,7 +508,8 @@ export default async function PatientSearch({ searchParams }) {
 
 ### 2.9 Testing the Setup
 
-1. Insert test data via the Supabase **Table Editor** or SQL, using text IDs for Clerk compatibility:
+1. Insert test data via the Supabase **Table Editor** or SQL, using text IDs for Clerk
+   compatibility:
 
 ```sql
 INSERT INTO organizations (id, name) VALUES ('org_123', 'Test Clinic');
@@ -517,11 +524,13 @@ INSERT INTO analytics_logs (organization_id, metric_type, value) VALUES ('org_12
 
 2. Test real-time subscriptions in a client component using the `@supabase/ssr` client.
 3. Verify RLS by attempting to access patient records with incorrect phone numbers.
-4. Test server-side queries in API routes or Server Components, ensuring Clerk text IDs are correctly handled.
+4. Test server-side queries in API routes or Server Components, ensuring Clerk text IDs are
+   correctly handled.
 
 ## 3. Notes
 
-- **Indexes**: Consider adding indexes on frequently queried fields (e.g., `patients.phone_number`, `appointments.date`) for performance.
+- **Indexes**: Consider adding indexes on frequently queried fields (e.g., `patients.phone_number`,
+  `appointments.date`) for performance.
 - **Backups**: Enable daily backups in Supabase Dashboard under **Database** > **Backups**.
 - **Monitoring**: Use Supabase’s **Reports** to monitor query performance and real-time usage.
 - **Security**: Store Supabase and Clerk keys in environment variables (`.env.local`):
@@ -530,7 +539,11 @@ INSERT INTO analytics_logs (organization_id, metric_type, value) VALUES ('org_12
   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
   SUPABASE_SERVICE_ROLE_KEY=your-service-key
   ```
-- **SSR Considerations**: Use `createSupabaseServerClient` for server-side operations and `createSupabaseClient` for client-side real-time subscriptions. Avoid real-time subscriptions in server components, as they are not supported.
-- **Clerk IDs**: Ensure Clerk organization and user IDs are correctly synced as `text` via the webhook. Validate ID formats in the webhook handler to prevent errors.
+- **SSR Considerations**: Use `createSupabaseServerClient` for server-side operations and
+  `createSupabaseClient` for client-side real-time subscriptions. Avoid real-time subscriptions in
+  server components, as they are not supported.
+- **Clerk IDs**: Ensure Clerk organization and user IDs are correctly synced as `text` via the
+  webhook. Validate ID formats in the webhook handler to prevent errors.
 
-This schema and setup provide a robust foundation for HealthDrive’s data needs, optimized for Next.js 15 with SSR using `@supabase/ssr` and Clerk text IDs.
+This schema and setup provide a robust foundation for HealthDrive’s data needs, optimized for
+Next.js 15 with SSR using `@supabase/ssr` and Clerk text IDs.

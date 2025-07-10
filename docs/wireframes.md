@@ -1,6 +1,8 @@
 # HealthDrive ASCII Wireframes
 
-Below are updated ASCII wireframes for each page of the HealthDrive application, reflecting the removal of the logo and user profile (to be replaced by a sidebar), action buttons for appointments, and updated Add Appointment popup functionality.
+Below are updated ASCII wireframes for each page of the HealthDrive application, reflecting the
+removal of the logo and user profile (to be replaced by a sidebar), action buttons for appointments,
+and updated Add Appointment popup functionality.
 
 ## 1. Dashboard Page
 

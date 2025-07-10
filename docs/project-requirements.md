@@ -4,12 +4,15 @@
 
 ### 1.1 Purpose
 
-HealthDrive is a B2B SaaS application designed to streamline healthcare facility operations by providing efficient management of appointments, doctors, departments, and patient records while ensuring data privacy and real-time analytics.
+HealthDrive is a B2B SaaS application designed to streamline healthcare facility operations by
+providing efficient management of appointments, doctors, departments, and patient records while
+ensuring data privacy and real-time analytics.
 
 ### 1.2 Goals
 
 - Develop a system to manage appointments, doctors, and departments.
-- Enable shared patient medical records across facilities, accessible only via patient phone numbers for privacy.
+- Enable shared patient medical records across facilities, accessible only via patient phone numbers
+  for privacy.
 - Provide real-time analytics for appointments, doctor performance, and patient retention.
 - Create a user-friendly, installable Progressive Web App (PWA) with notifications.
 
@@ -98,7 +101,8 @@ The application will include:
 
 - **Performance**: Real-time updates for appointments and analytics with minimal latency.
 - **Scalability**: Support multiple facilities and users with Supabase.
-- **Security**: Secure patient data access via phone number authentication; Clerk for user authentication.
+- **Security**: Secure patient data access via phone number authentication; Clerk for user
+  authentication.
 - **Usability**: Intuitive UI using Shadcn UI components and TailwindCSS.
 - **Accessibility**: PWA support for notifications and offline capabilities.
 - **Maintainability**: Modular code structure with Next.js 15.
@@ -113,7 +117,8 @@ The application will include:
   - Shadcn UI (Reusable components).
   - Motion (Animations).
 - **Backend**:
-  - Supabase (PostgreSQL database for organizations, users, doctors, appointments, departments, patient records).
+  - Supabase (PostgreSQL database for organizations, users, doctors, appointments, departments,
+    patient records).
 - **Authentication**:
   - Clerk (User and organization authentication, webhooks for data sync).
 - **Billing**:
@@ -179,9 +184,11 @@ The application will include:
   - Set up PWA with notification support.
   - Configure Supabase database and schema with text IDs for Clerk compatibility.
   - Integrate Clerk for authentication and webhook for syncing organizations/users.
-  - Develop dashboard UI with real-time analytics cards and today's appointments table (with actions).
+  - Develop dashboard UI with real-time analytics cards and today's appointments table (with
+    actions).
   - Create doctors page with listing, add/edit popups.
-  - Create appointments page with listing, add/edit popups (with patient search), actions, and real-time updates.
+  - Create appointments page with listing, add/edit popups (with patient search), actions, and
+    real-time updates.
   - Create appointment details page.
   - Build analytics page with detailed metrics and CSV/PDF export functionality.
 - **Deliverables**:
@@ -237,4 +244,5 @@ The application will include:
 
 ## 9. Approval
 
-This PRD requires approval from the product owner before development begins. Any changes to scope or timeline will be documented and re-approved.
+This PRD requires approval from the product owner before development begins. Any changes to scope or
+timeline will be documented and re-approved.
