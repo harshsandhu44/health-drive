@@ -1,0 +1,3 @@
+// This is a placeholder for the notification sound file
+// A proper WAV audio file should be placed here for notification sounds
+// For now, the app will use the Web Audio API to generate sounds 

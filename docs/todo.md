@@ -6,9 +6,12 @@ Week 2) as outlined in the project requirements. Updates reflect the use of `tex
 
 ## Week 1: Foundation and Core Features
 
-- [ ] **PWA Setup**
-  - Configure Next.js 15 for PWA with notification support.
-  - Test app installation and push notifications.
+- [x] **PWA Setup**
+  - ✅ Configure Next.js 15 for PWA with notification support.
+  - ✅ Test app installation and push notifications.
+  - ✅ Created debug route `/debug` for PWA testing separate from main app.
+  - ✅ Implemented PWA manifest, service worker, and push notification support.
+  - ✅ Added PWA debug components for testing functionality.
 
 - [ ] **Database Setup**
   - Initialize Supabase project.

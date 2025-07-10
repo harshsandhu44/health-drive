@@ -1,0 +1,47 @@
+{
+  "name": "HealthDrive by Vylune",
+  "short_name": "HealthDrive",
+  "description": "HealthDrive solves the problem of healthcare data management. We are on a mission to help you manage data on your own terms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["health", "medical", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "any",
+          "type": "image/x-icon"
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "short_name": "Appointments",
+      "description": "Manage appointments",
+      "url": "/appointments",
+      "icons": [
+        {
+          "src": "/favicon.ico",
+          "sizes": "any",
+          "type": "image/x-icon"
+        }
+      ]
+    }
+  ]
+}
