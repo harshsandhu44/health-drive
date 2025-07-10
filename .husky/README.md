@@ -1,6 +1,7 @@
 # Git Hooks with Husky
 
-This directory contains Git hooks managed by Husky to ensure code quality and consistency across the project.
+This directory contains Git hooks managed by Husky to ensure code quality and consistency across the
+project.
 
 ## 🪝 Available Hooks
 
@@ -24,7 +25,8 @@ Runs before pushing to remote repository:
 Validates commit messages follow conventional commits format:
 
 - ✅ Enforces: `type(scope): description`
-- 📋 Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`, `revert`
+- 📋 Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`,
+  `build`, `revert`
 
 ## 📝 Commit Message Examples
 
