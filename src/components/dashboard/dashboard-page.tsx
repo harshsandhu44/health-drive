@@ -1,9 +1,7 @@
 "use client";
 
-import { TrendingDownIcon, TrendingUpIcon, WifiOffIcon } from "lucide-react";
+import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { appointmentColumns } from "@/components/appointments/appointment-columns";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,47 +10,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { useAppointmentNotifications } from "@/hooks/use-appointment-notifications";
-import { useRealtimeAppointments } from "@/hooks/use-realtime-appointments";
 import { Appointment } from "@/types/appointment";
 
-interface RealtimeDashboardProps {
+interface DashboardPageProps {
   initialAppointments: Appointment[];
   userName?: string;
 }
 
-export function RealtimeDashboard({
+export function DashboardPage({
   initialAppointments,
   userName = "User",
-}: RealtimeDashboardProps) {
-  const {
-    appointments: todaysAppointments,
-    allAppointments,
-    isLoading,
-    error,
-    isConnected,
-    refreshConnection,
-  } = useRealtimeAppointments({
-    initialAppointments,
-    enableNotifications: true,
-    filter: "today",
-  });
-
-  // Set up appointment notifications for all appointments
-  useAppointmentNotifications({
-    appointments: allAppointments,
-    enabled: true,
-  });
-
-  // Calculate stats from real-time data
-  const totalAppointments = todaysAppointments.length;
-  const confirmedAppointments = todaysAppointments.filter(
+}: DashboardPageProps) {
+  // Calculate stats from appointments data
+  const totalAppointments = initialAppointments.length;
+  const confirmedAppointments = initialAppointments.filter(
     (apt) => apt.status === "confirmed"
   ).length;
-  const pendingAppointments = todaysAppointments.filter(
+  const pendingAppointments = initialAppointments.filter(
     (apt) => apt.status === "pending"
   ).length;
-  const completedAppointments = todaysAppointments.filter(
+  const completedAppointments = initialAppointments.filter(
     (apt) => apt.status === "completed"
   ).length;
 
@@ -65,41 +42,7 @@ export function RealtimeDashboard({
             Here&apos;s what&apos;s happening with your appointments today.
           </p>
         </div>
-
-        {/* Connection Status */}
-        <div className="flex items-center gap-2">
-          {isConnected ? (
-            <Badge variant="default" className="bg-green-100 text-green-800">
-              ● Live Updates
-            </Badge>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Badge variant="destructive" className="bg-red-100 text-red-800">
-                <WifiOffIcon className="h-3 w-3 mr-1" />
-                Disconnected
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refreshConnection}
-                disabled={isLoading}
-              >
-                Reconnect
-              </Button>
-            </div>
-          )}
-        </div>
       </div>
-
-      {error && (
-        <Card className="border-destructive">
-          <CardContent className="pt-6">
-            <p className="text-destructive text-sm">
-              Error connecting to live updates: {error}
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -107,13 +50,11 @@ export function RealtimeDashboard({
             <CardTitle className="text-sm font-medium">
               Total Appointments
             </CardTitle>
-            <TrendingUpIcon className="h-4 w-4 text-muted-foreground" />
+            <TrendingUpIcon className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalAppointments}</div>
-            <p className="text-xs text-muted-foreground">
-              Appointments for today
-            </p>
+            <p className="text-xs text-muted-foreground">Scheduled for today</p>
           </CardContent>
         </Card>
 
@@ -124,7 +65,7 @@ export function RealtimeDashboard({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{confirmedAppointments}</div>
-            <p className="text-xs text-muted-foreground">Ready for today</p>
+            <p className="text-xs text-muted-foreground">Ready to go</p>
           </CardContent>
         </Card>
 
@@ -154,19 +95,16 @@ export function RealtimeDashboard({
       </div>
 
       <Card>
-        <CardHeader className="flex items-center justify-between">
-          <div>
-            <CardTitle>Today&apos;s Appointments</CardTitle>
-            <CardDescription>
-              View and manage appointments scheduled for today
-            </CardDescription>
-          </div>
-          {isLoading && <Badge variant="secondary">Updating...</Badge>}
+        <CardHeader>
+          <CardTitle>Today&apos;s Appointments</CardTitle>
+          <CardDescription>
+            View and manage appointments scheduled for today
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={appointmentColumns}
-            data={todaysAppointments}
+            data={initialAppointments}
             searchKey="patient_phone"
             searchPlaceholder="Search patients with phone number..."
           />

@@ -1,9 +1,9 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { fetchTodaysAppointmentsAction } from "@/app/actions";
-import { RealtimeDashboard } from "@/components/dashboard/realtime-dashboard";
+import { DashboardPage } from "@/components/dashboard/dashboard-page";
 import { Appointment } from "@/types/appointment";
 
-const DashboardPage = async () => {
+const DashboardPageRoute = async () => {
   const user = await currentUser();
 
   // Fetch today's appointments
@@ -15,11 +15,11 @@ const DashboardPage = async () => {
   }
 
   return (
-    <RealtimeDashboard
+    <DashboardPage
       initialAppointments={todaysAppointments}
       userName={user?.firstName || "User"}
     />
   );
 };
 
-export default DashboardPage;
+export default DashboardPageRoute;

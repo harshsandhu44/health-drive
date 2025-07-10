@@ -1,8 +1,8 @@
 import { fetchAppointmentsAction } from "@/app/actions";
-import { RealtimeAppointments } from "@/components/appointments/realtime-appointments";
+import { AppointmentsPage } from "@/components/appointments/appointments-page";
 import { Appointment } from "@/types/appointment";
 
-const AppointmentsPage = async () => {
+const AppointmentsPageRoute = async () => {
   // Fetch all appointments
   let appointments: Appointment[] = [];
   try {
@@ -11,7 +11,7 @@ const AppointmentsPage = async () => {
     console.error("Error fetching appointments:", error);
   }
 
-  return <RealtimeAppointments initialAppointments={appointments} />;
+  return <AppointmentsPage initialAppointments={appointments} />;
 };
 
-export default AppointmentsPage;
+export default AppointmentsPageRoute;
