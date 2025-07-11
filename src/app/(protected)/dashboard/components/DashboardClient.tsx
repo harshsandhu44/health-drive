@@ -1,8 +1,8 @@
 "use client";
 import * as React from "react";
 
-import { useAuth } from "@clerk/nextjs";
 import { Calendar, Users, UserCheck, Activity } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { CreateAppointmentModal } from "@/components/modals/CreateAppointmentModal";
 import { UpdateAppointmentModal } from "@/components/modals/UpdateAppointmentModal";
@@ -15,12 +15,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAnalyticsStore } from "@/stores/analytics";
-import { useAppointmentsStore, Appointment } from "@/stores/appointments";
+
+import { updateAppointmentStatus } from "../actions";
+
+export interface Appointment {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  organization_id: string;
+  appointment_date: string;
+  appointment_time: string;
+  status: "scheduled" | "completed" | "cancelled" | "no_show";
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  patient_name?: string;
+  patient_phone?: string;
+  doctor_name?: string;
+  department_name?: string;
+}
 
 interface DashboardClientProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialMetrics: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialAppointments: any[];
 }
 
@@ -29,60 +49,31 @@ export function DashboardClient({
   initialMetrics,
   initialAppointments,
 }: DashboardClientProps) {
-  const { orgId } = useAuth();
+  const router = useRouter();
   const [createOpen, setCreateOpen] = React.useState(false);
   const [updateOpen, setUpdateOpen] = React.useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     React.useState<Appointment | null>(null);
-
-  const {
-    dashboardMetrics,
-    isLoading: metricsLoading,
-    error: metricsError,
-    fetchDashboardMetrics,
-    subscribeToRealtime: subscribeToAnalytics,
-    unsubscribe: unsubscribeAnalytics,
-  } = useAnalyticsStore();
-
-  const {
-    todaysAppointments,
-    isLoading: appointmentsLoading,
-    error: appointmentsError,
-    fetchTodaysAppointments,
-    subscribeToRealtime: subscribeToAppointments,
-    unsubscribe: unsubscribeAppointments,
-    updateAppointment,
-  } = useAppointmentsStore();
-
-  React.useEffect(() => {
-    if (!orgId) return;
-
-    fetchDashboardMetrics(orgId);
-    fetchTodaysAppointments(orgId);
-    subscribeToAnalytics(orgId);
-    subscribeToAppointments(orgId);
-
-    return () => {
-      unsubscribeAnalytics();
-      unsubscribeAppointments();
-    };
-  }, [orgId]);
+  const [isUpdating, setIsUpdating] = React.useState(false);
 
   const handleStatusChange = async (
     appointmentId: string,
     newStatus: string
   ) => {
+    setIsUpdating(true);
     try {
-      await updateAppointment(appointmentId, {
-        status: newStatus as
-          | "scheduled"
-          | "completed"
-          | "cancelled"
-          | "no_show",
-      });
+      await updateAppointmentStatus(
+        appointmentId,
+        newStatus as "scheduled" | "completed" | "cancelled" | "no_show"
+      );
+
+      // Refresh the page to show updated data
+      router.refresh();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Failed to update appointment status:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -90,19 +81,6 @@ export function DashboardClient({
     setSelectedAppointment(appointment);
     setUpdateOpen(true);
   };
-
-  const currentMetrics =
-    dashboardMetrics.todaysAppointments > 0 ? dashboardMetrics : initialMetrics;
-  const currentAppointments =
-    todaysAppointments.length > 0 ? todaysAppointments : initialAppointments;
-
-  if (metricsError || appointmentsError) {
-    return (
-      <div className="text-red-500">
-        Error loading dashboard: {metricsError || appointmentsError}
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -127,10 +105,10 @@ export function DashboardClient({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metricsLoading ? "..." : currentMetrics.todaysAppointments}
+              {initialMetrics.todaysAppointments}
             </div>
             <p className="text-muted-foreground text-xs">
-              {currentMetrics.pendingAppointments} pending
+              {initialMetrics.pendingAppointments} pending
             </p>
           </CardContent>
         </Card>
@@ -144,7 +122,7 @@ export function DashboardClient({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metricsLoading ? "..." : currentMetrics.patientsThisWeek}
+              {initialMetrics.patientsThisWeek}
             </div>
             <p className="text-muted-foreground text-xs">
               Unique patients served
@@ -159,7 +137,7 @@ export function DashboardClient({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metricsLoading ? "..." : currentMetrics.totalDoctors}
+              {initialMetrics.totalDoctors}
             </div>
             <p className="text-muted-foreground text-xs">
               Active practitioners
@@ -176,7 +154,7 @@ export function DashboardClient({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {metricsLoading ? "..." : currentMetrics.completedAppointments}
+              {initialMetrics.completedAppointments}
             </div>
             <p className="text-muted-foreground text-xs">
               Appointments finished
@@ -202,8 +180,8 @@ export function DashboardClient({
           </CardHeader>
           <CardContent>
             <AppointmentsTable
-              data={currentAppointments}
-              isLoading={appointmentsLoading}
+              data={initialAppointments}
+              isLoading={isUpdating}
               onStatusChange={handleStatusChange}
               onEditAppointment={handleEditAppointment}
             />

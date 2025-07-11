@@ -1,7 +1,7 @@
 "use client";
 
+import { Appointment } from "@/app/(protected)/dashboard/components/DashboardClient";
 import { DataTable } from "@/components/ui/data-table";
-import { Appointment } from "@/stores/appointments";
 
 import { createAppointmentColumns } from "./appointments-columns";
 
