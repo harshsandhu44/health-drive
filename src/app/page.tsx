@@ -9,6 +9,6 @@ export default async function HomePage() {
     redirect("/dashboard");
   } else {
     // Redirect unauthenticated users to sign-in
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 }

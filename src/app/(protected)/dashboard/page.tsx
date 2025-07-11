@@ -56,7 +56,7 @@ export default async function DashboardPage() {
           Welcome back, {user.firstName}!
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-300">
-          Here's what's happening with your healthcare facility today.
+          Here&apos;s what&apos;s happening with your healthcare facility today.
         </p>
       </div>
 
