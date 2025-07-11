@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
@@ -34,11 +35,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ServiceWorkerRegistration />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body>
+          <ServiceWorkerRegistration />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
