@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { Calendar, Users, BarChart3, Clock } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,8 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
-import { fetchDashboardMetrics } from "./actions";
+import { fetchDashboardMetrics, fetchTodaysAppointments } from "./actions";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -20,12 +38,12 @@ export default async function DashboardPage() {
 
   // Fetch real dashboard metrics
   let metrics;
+  let appointments = [];
   try {
     metrics = await fetchDashboardMetrics();
+    appointments = await fetchTodaysAppointments();
   } catch {
-    return (
-      <div className="text-red-500">Failed to load dashboard metrics.</div>
-    );
+    return <div className="text-red-500">Failed to load dashboard data.</div>;
   }
 
   const stats = [
@@ -96,21 +114,95 @@ export default async function DashboardPage() {
 
       {/* Recent Activities */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
+        {/* Appointments Table */}
+        <Card className="col-span-1">
           <CardHeader>
-            <CardTitle>Recent Appointments</CardTitle>
+            <CardTitle>Today&apos;s Appointments</CardTitle>
             <CardDescription>
-              Latest appointments scheduled today
+              All appointments scheduled for today
             </CardDescription>
+            <div className="mt-2">
+              <Button /* onClick={openCreateModal} */>
+                + Create Appointment
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              No appointments data available. Connect to Supabase to see real
-              data.
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Patient</TableHead>
+                  <TableHead>Doctor</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {appointments.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-muted-foreground text-center"
+                    >
+                      No appointments for today.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  appointments.map((apt: any) => (
+                    <TableRow key={apt.id}>
+                      <TableCell>{apt.time}</TableCell>
+                      <TableCell>{apt.patient_name}</TableCell>
+                      <TableCell>{apt.doctor_name}</TableCell>
+                      <TableCell>{apt.department_name}</TableCell>
+                      <TableCell>{apt.status}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              Actions
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuSub>
+                              <DropdownMenuSubTrigger>
+                                Change Status
+                              </DropdownMenuSubTrigger>
+                              <DropdownMenuSubContent>
+                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'pending')} */
+                                >
+                                  Pending
+                                </DropdownMenuItem>
+                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'confirmed')} */
+                                >
+                                  Confirmed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'completed')} */
+                                >
+                                  Completed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'cancelled')} */
+                                >
+                                  Cancelled
+                                </DropdownMenuItem>
+                              </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                            <DropdownMenuItem /* onClick={() => openUpdateModal(apt)} */
+                            >
+                              Update Appointment
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-
+        {/* Quick Actions Card remains unchanged */}
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
