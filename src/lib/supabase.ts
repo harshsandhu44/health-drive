@@ -2,7 +2,7 @@
 import { createServerClient, createBrowserClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// Server-side client for API routes or server components
+// Server-side client for API routes or server components (with RLS)
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   return createServerClient(
@@ -17,6 +17,24 @@ export async function createSupabaseServerClient() {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           );
+        },
+      },
+    }
+  );
+}
+
+// Server-side client with service role (bypasses RLS) for server actions
+export function createSupabaseServiceClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return [];
+        },
+        setAll() {
+          // No-op for service role
         },
       },
     }

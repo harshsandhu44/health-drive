@@ -1,22 +1,20 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 
 export async function fetchDashboardMetrics() {
-  const user = await currentUser();
-  if (!user) throw new Error("Not authenticated");
-  
+  const { orgId } = await auth();
+  if (!orgId) throw new Error("Not authenticated");
+
   // Get organization_id from Clerk user
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organizationId || (user as any).orgId;
+  const organization_id = orgId;
   if (!organization_id) {
-    console.error("User object:", user);
     throw new Error("No organization_id found on user");
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseServiceClient();
   const today = new Date().toISOString().split("T")[0];
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -72,18 +70,16 @@ export async function fetchDashboardMetrics() {
 }
 
 export async function fetchTodaysAppointments() {
-  const user = await currentUser();
-  if (!user) throw new Error("Not authenticated");
-  
+  const { orgId } = await auth();
+  if (!orgId) throw new Error("Not authenticated");
+
   // Get organization_id from Clerk user
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organizationId || (user as any).orgId;
+  const organization_id = orgId;
   if (!organization_id) {
-    console.error("User object:", user);
     throw new Error("No organization_id found on user");
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseServiceClient();
   const today = new Date().toISOString().split("T")[0];
 
   const { data, error } = await supabase
@@ -92,7 +88,6 @@ export async function fetchTodaysAppointments() {
       `*,
       patients!inner(name, phone_number),
       doctors(name),
-      departments(name)
     `
     )
     .eq("organization_id", organization_id)
@@ -110,7 +105,6 @@ export async function fetchTodaysAppointments() {
       patient_name: apt.patients?.name,
       patient_phone: apt.patients?.phone_number,
       doctor_name: apt.doctors?.name,
-      department_name: apt.departments?.name,
     })) || []
   );
 }
@@ -119,18 +113,16 @@ export async function updateAppointmentStatus(
   appointmentId: string,
   status: "pending" | "confirmed" | "completed" | "cancelled"
 ) {
-  const user = await currentUser();
-  if (!user) throw new Error("Not authenticated");
-  
+  const { orgId } = await auth();
+  if (!orgId) throw new Error("Not authenticated");
+
   // Get organization_id from Clerk user
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organizationId || (user as any).orgId;
+  const organization_id = orgId;
   if (!organization_id) {
-    console.error("User object:", user);
     throw new Error("No organization_id found on user");
   }
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseServiceClient();
 
   const { data, error } = await supabase
     .from("appointments")

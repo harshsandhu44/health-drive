@@ -29,7 +29,7 @@ export default async function DashboardPage() {
         <h2>Failed to load dashboard data</h2>
         <details className="mt-2">
           <summary>Error details</summary>
-          <pre className="mt-2 text-sm bg-red-50 p-2 rounded">
+          <pre className="mt-2 rounded bg-red-50 p-2 text-sm">
             {error instanceof Error ? error.message : String(error)}
           </pre>
         </details>
