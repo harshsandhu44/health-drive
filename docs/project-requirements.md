@@ -116,6 +116,7 @@ The application will include:
   - TailwindCSS 4.1 (Styling).
   - Shadcn UI (Reusable components).
   - Motion (Animations).
+  - Zustand (State management for real-time data and UI state).
 - **Backend**:
   - Supabase (PostgreSQL database for organizations, users, doctors, appointments, departments,
     patient records).
@@ -184,17 +185,21 @@ The application will include:
   - Set up PWA with notification support.
   - Configure Supabase database and schema with text IDs for Clerk compatibility.
   - Integrate Clerk for authentication and webhook for syncing organizations/users.
+  - Implement Zustand stores for real-time appointments, analytics, UI state (popups), and patient
+    search caching.
   - Develop dashboard UI with real-time analytics cards and today's appointments table (with
-    actions).
-  - Create doctors page with listing, add/edit popups.
+    actions), using Zustand for state management.
+  - Create doctors page with listing, add/edit popups, integrated with Zustand UI store.
   - Create appointments page with listing, add/edit popups (with patient search), actions, and
-    real-time updates.
+    real-time updates, using Zustand for appointments and patient state.
   - Create appointment details page.
-  - Build analytics page with detailed metrics and CSV/PDF export functionality.
+  - Build analytics page with detailed metrics and CSV/PDF export functionality, using Zustand for
+    analytics state.
 - **Deliverables**:
   - Functional PWA app.
   - Supabase database with updated schema.
   - Clerk authentication and webhook integration.
+  - Zustand-integrated state management for core features.
   - Dashboard, doctors, appointments, appointment details, and analytics pages.
 
 ### 4.2 Week 2: Billing and Support
@@ -222,14 +227,16 @@ The application will include:
 - **Risk**: Delays in third-party integrations (Clerk, Paytm).
   - **Mitigation**: Allocate buffer time in Week 1 for integration testing.
 - **Risk**: Real-time performance issues with Supabase.
-  - **Mitigation**: Optimize database queries and use Supabase real-time subscriptions.
+  - **Mitigation**: Optimize database queries and use Supabase real-time subscriptions with Zustand
+    for efficient state updates.
 - **Risk**: Complex UI/UX for patient search and analytics export.
-  - **Mitigation**: Use Shadcn UI for consistent, reusable components.
+  - **Mitigation**: Use Shadcn UI for consistent, reusable components and Zustand for centralized
+    state management.
 
 ## 7. Success Criteria
 
 - Fully functional PWA with push notifications.
-- Real-time appointment and analytics updates.
+- Real-time appointment and analytics updates managed via Zustand.
 - Secure patient record access via phone numbers with updated patient fields.
 - Operational billing system.
 - User-friendly dashboard, appointment (with actions and details page), doctor, and analytics pages.
