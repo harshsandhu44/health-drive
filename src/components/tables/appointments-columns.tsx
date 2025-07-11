@@ -49,11 +49,7 @@ export const createAppointmentColumns = ({
     ),
     cell: ({ row }) => {
       const time = row.getValue("appointment_time") as string;
-      return (
-        <div className="font-medium">
-          {time}
-        </div>
-      );
+      return <div className="font-medium">{time}</div>;
     },
   },
   {
@@ -68,7 +64,7 @@ export const createAppointmentColumns = ({
         <div>
           <div className="font-medium">{patientName}</div>
           {patientPhone && (
-            <div className="text-sm text-muted-foreground">{patientPhone}</div>
+            <div className="text-muted-foreground text-sm">{patientPhone}</div>
           )}
         </div>
       );
@@ -118,11 +114,7 @@ export const createAppointmentColumns = ({
     ),
     cell: ({ row }) => {
       const notes = row.getValue("notes") as string;
-      return (
-        <div className="max-w-[200px] truncate">
-          {notes || "—"}
-        </div>
-      );
+      return <div className="max-w-[200px] truncate">{notes || "—"}</div>;
     },
   },
   {

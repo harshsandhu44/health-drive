@@ -32,9 +32,8 @@ export function DashboardClient({
   const { orgId } = useAuth();
   const [createOpen, setCreateOpen] = React.useState(false);
   const [updateOpen, setUpdateOpen] = React.useState(false);
-  const [selectedAppointment, setSelectedAppointment] = React.useState<
-    Appointment | null
-  >(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    React.useState<Appointment | null>(null);
 
   const {
     dashboardMetrics,
@@ -69,9 +68,18 @@ export function DashboardClient({
     };
   }, [orgId]);
 
-  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+  const handleStatusChange = async (
+    appointmentId: string,
+    newStatus: string
+  ) => {
     try {
-      await updateAppointment(appointmentId, { status: newStatus as "scheduled" | "completed" | "cancelled" | "no_show" });
+      await updateAppointment(appointmentId, {
+        status: newStatus as
+          | "scheduled"
+          | "completed"
+          | "cancelled"
+          | "no_show",
+      });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Failed to update appointment status:", error);
@@ -83,8 +91,10 @@ export function DashboardClient({
     setUpdateOpen(true);
   };
 
-  const currentMetrics = dashboardMetrics.todaysAppointments > 0 ? dashboardMetrics : initialMetrics;
-  const currentAppointments = todaysAppointments.length > 0 ? todaysAppointments : initialAppointments;
+  const currentMetrics =
+    dashboardMetrics.todaysAppointments > 0 ? dashboardMetrics : initialMetrics;
+  const currentAppointments =
+    todaysAppointments.length > 0 ? todaysAppointments : initialAppointments;
 
   if (metricsError || appointmentsError) {
     return (
@@ -110,14 +120,16 @@ export function DashboardClient({
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today&apos;s Appointments</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Today&apos;s Appointments
+            </CardTitle>
+            <Calendar className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {metricsLoading ? "..." : currentMetrics.todaysAppointments}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {currentMetrics.pendingAppointments} pending
             </p>
           </CardContent>
@@ -125,14 +137,16 @@ export function DashboardClient({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Patients This Week</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Patients This Week
+            </CardTitle>
+            <Users className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {metricsLoading ? "..." : currentMetrics.patientsThisWeek}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Unique patients served
             </p>
           </CardContent>
@@ -141,13 +155,13 @@ export function DashboardClient({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Doctors</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+            <UserCheck className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {metricsLoading ? "..." : currentMetrics.totalDoctors}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Active practitioners
             </p>
           </CardContent>
@@ -155,14 +169,16 @@ export function DashboardClient({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Today</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Completed Today
+            </CardTitle>
+            <Activity className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {metricsLoading ? "..." : currentMetrics.completedAppointments}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Appointments finished
             </p>
           </CardContent>
@@ -235,14 +251,18 @@ export function DashboardClient({
       <UpdateAppointmentModal
         open={updateOpen}
         onOpenChange={setUpdateOpen}
-        appointment={selectedAppointment ? {
-          patient: selectedAppointment.patient_name,
-          doctor: selectedAppointment.doctor_name,
-          department: selectedAppointment.department_name,
-          date: selectedAppointment.appointment_date,
-          time: selectedAppointment.appointment_time,
-          status: selectedAppointment.status,
-        } : undefined}
+        appointment={
+          selectedAppointment
+            ? {
+                patient: selectedAppointment.patient_name,
+                doctor: selectedAppointment.doctor_name,
+                department: selectedAppointment.department_name,
+                date: selectedAppointment.appointment_date,
+                time: selectedAppointment.appointment_time,
+                status: selectedAppointment.status,
+              }
+            : undefined
+        }
       />
     </div>
   );

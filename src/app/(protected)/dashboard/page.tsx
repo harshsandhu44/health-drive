@@ -8,22 +8,21 @@ export default async function DashboardPage() {
   if (!user) {
     return <div>Not authenticated</div>;
   }
-  
+
   try {
     const [dashboardMetrics, appointments] = await Promise.all([
       fetchDashboardMetrics(),
       fetchTodaysAppointments(),
     ]);
-    
+
     return (
-      <DashboardClient 
-        user={user} 
+      <DashboardClient
+        user={user}
         initialMetrics={dashboardMetrics}
-        initialAppointments={appointments} 
+        initialAppointments={appointments}
       />
     );
   } catch {
     return <div className="text-red-500">Failed to load dashboard data.</div>;
   }
 }
-
