@@ -1,6 +1,11 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { Calendar, Users, BarChart3, Clock } from "lucide-react";
+// Move React import to the top
+"use client";
+import * as React from "react";
 
+import { currentUser } from "@clerk/nextjs/server";
+
+import { CreateAppointmentModal } from "@/components/modals/CreateAppointmentModal";
+import { UpdateAppointmentModal } from "@/components/modals/UpdateAppointmentModal";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,55 +32,34 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-import { fetchDashboardMetrics, fetchTodaysAppointments } from "./actions";
+import { fetchTodaysAppointments } from "./actions";
 
 export default async function DashboardPage() {
   const user = await currentUser();
-
   if (!user) {
     return <div>Not authenticated</div>;
   }
-
-  // Fetch real dashboard metrics
-  let metrics;
   let appointments = [];
   try {
-    metrics = await fetchDashboardMetrics();
     appointments = await fetchTodaysAppointments();
   } catch {
     return <div className="text-red-500">Failed to load dashboard data.</div>;
   }
+  return <DashboardClient user={user} appointments={appointments} />;
+}
 
-  const stats = [
-    {
-      title: "Today's Appointments",
-      value: metrics.todaysAppointments,
-      description: undefined, // Optionally add a description if needed
-      icon: Calendar,
-      color: "text-blue-600",
-    },
-    {
-      title: "Patients This Week",
-      value: metrics.patientsThisWeek,
-      description: undefined,
-      icon: Users,
-      color: "text-green-600",
-    },
-    {
-      title: "Total Doctors",
-      value: metrics.totalDoctors,
-      description: undefined,
-      icon: BarChart3,
-      color: "text-purple-600",
-    },
-    {
-      title: "Pending Appointments",
-      value: metrics.pendingAppointments,
-      description: undefined,
-      icon: Clock,
-      color: "text-orange-600",
-    },
-  ];
+function DashboardClient({
+  user,
+  appointments,
+}: {
+  user: any;
+  appointments: any[];
+}) {
+  const [createOpen, setCreateOpen] = React.useState(false);
+  const [updateOpen, setUpdateOpen] = React.useState(false);
+  const [selectedAppointment, setSelectedAppointment] = React.useState<
+    any | null
+  >(null);
 
   return (
     <div className="space-y-6">
@@ -88,30 +72,7 @@ export default async function DashboardPage() {
           Here&apos;s what&apos;s happening with your healthcare facility today.
         </p>
       </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map(stat => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.title}
-                </CardTitle>
-                <Icon className={`h-4 w-4 ${stat.color}`} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-muted-foreground text-xs">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
+      {/* Stats Grid (removed unused stats) */}
       {/* Recent Activities */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Appointments Table */}
@@ -122,7 +83,7 @@ export default async function DashboardPage() {
               All appointments scheduled for today
             </CardDescription>
             <div className="mt-2">
-              <Button /* onClick={openCreateModal} */>
+              <Button onClick={() => setCreateOpen(true)}>
                 + Create Appointment
               </Button>
             </div>
@@ -170,25 +131,17 @@ export default async function DashboardPage() {
                                 Change Status
                               </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent>
-                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'pending')} */
-                                >
-                                  Pending
-                                </DropdownMenuItem>
-                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'confirmed')} */
-                                >
-                                  Confirmed
-                                </DropdownMenuItem>
-                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'completed')} */
-                                >
-                                  Completed
-                                </DropdownMenuItem>
-                                <DropdownMenuItem /* onClick={() => handleChangeStatus(apt.id, 'cancelled')} */
-                                >
-                                  Cancelled
-                                </DropdownMenuItem>
+                                <DropdownMenuItem>Pending</DropdownMenuItem>
+                                <DropdownMenuItem>Confirmed</DropdownMenuItem>
+                                <DropdownMenuItem>Completed</DropdownMenuItem>
+                                <DropdownMenuItem>Cancelled</DropdownMenuItem>
                               </DropdownMenuSubContent>
                             </DropdownMenuSub>
-                            <DropdownMenuItem /* onClick={() => openUpdateModal(apt)} */
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedAppointment(apt);
+                                setUpdateOpen(true);
+                              }}
                             >
                               Update Appointment
                             </DropdownMenuItem>
@@ -221,6 +174,13 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+      {/* Modals */}
+      <CreateAppointmentModal open={createOpen} onOpenChange={setCreateOpen} />
+      <UpdateAppointmentModal
+        open={updateOpen}
+        onOpenChange={setUpdateOpen}
+        appointment={selectedAppointment}
+      />
     </div>
   );
 }
