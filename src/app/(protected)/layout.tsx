@@ -11,12 +11,12 @@ interface ProtectedLayoutProps {
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   return (
     <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
+    // style={
+    //   {
+    //     "--sidebar-width": "calc(var(--spacing) * 72)",
+    //     "--header-height": "calc(var(--spacing) * 12)",
+    //   } as React.CSSProperties
+    // }
     >
       <OrgSidebar variant="inset" />
       <SidebarInset>

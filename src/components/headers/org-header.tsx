@@ -2,8 +2,8 @@
 
 import { usePathname } from "next/navigation";
 
-import { Separator } from "../ui/separator";
-import { SidebarTrigger } from "../ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export const OrgHeader = () => {
   const pathname = usePathname();
