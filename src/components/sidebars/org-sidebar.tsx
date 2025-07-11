@@ -8,7 +8,6 @@ import {
   Calendar,
   LayoutDashboard,
   PlusCircleIcon,
-  Settings,
   User,
   Users,
 } from "lucide-react";
@@ -34,7 +33,6 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { name: "Doctors", href: "/doctors", icon: Users },
     { name: "Patients", href: "/patients", icon: User },
     { name: "Analytics", href: "/analytics", icon: BarChart3 },
-    { name: "Settings", href: "/settings", icon: Settings },
   ];
 
   return (
@@ -72,7 +70,13 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {navigation.map(item => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton tooltip={item.name}>
+                  <SidebarMenuButton
+                    tooltip={item.name}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "sm" }),
+                      "w-full justify-start"
+                    )}
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.name}</span>
                   </SidebarMenuButton>
