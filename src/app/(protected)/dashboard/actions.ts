@@ -86,7 +86,7 @@ export async function fetchTodaysAppointments() {
     .from("appointments")
     .select(
       `*,
-      patients(name, phone_number),
+      patients!inner(name, phone_number),
       doctors(name)
     `
     )
@@ -99,7 +99,16 @@ export async function fetchTodaysAppointments() {
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?.map((apt: any) => ({
-      ...apt,
+      id: apt.id,
+      patient_id: apt.patient_id,
+      doctor_id: apt.doctor_id,
+      organization_id: apt.organization_id,
+      date: apt.date,
+      time: apt.time,
+      status: apt.status,
+      notes: apt.notes,
+      created_at: apt.created_at,
+      updated_at: apt.updated_at,
       appointment_date: apt.date,
       appointment_time: apt.time,
       patient_name: apt.patients?.name,

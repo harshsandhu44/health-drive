@@ -38,12 +38,24 @@ export interface Appointment {
 }
 
 interface DashboardClientProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  user: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialMetrics: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialAppointments: any[];
+  user: {
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    emailAddresses?: {
+      emailAddress: string;
+      id: string;
+    }[];
+  };
+  initialMetrics: {
+    todaysAppointments: number;
+    patientsThisWeek: number;
+    totalDoctors: number;
+    completedAppointments: number;
+    pendingAppointments: number;
+    cancelledAppointments: number;
+  };
+  initialAppointments: Appointment[];
 }
 
 export function DashboardClient({

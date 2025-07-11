@@ -15,9 +15,20 @@ export default async function DashboardPage() {
       fetchTodaysAppointments(),
     ]);
 
+    // Extract only serializable user properties
+    const userProps = {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailAddresses: user.emailAddresses?.map(email => ({
+        emailAddress: email.emailAddress,
+        id: email.id,
+      })),
+    };
+
     return (
       <DashboardClient
-        user={user}
+        user={userProps}
         initialMetrics={dashboardMetrics}
         initialAppointments={appointments}
       />
