@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 
+import { OrgHeader } from "@/components/headers";
 import { OrgSidebar } from "@/components/sidebars";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -19,6 +20,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     >
       <OrgSidebar variant="inset" />
       <SidebarInset>
+        <OrgHeader />
         <div className="@container/main container flex flex-1 flex-col py-4 md:py-6">
           {children}
         </div>
