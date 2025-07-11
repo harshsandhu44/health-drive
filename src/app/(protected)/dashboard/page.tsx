@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { fetchDashboardMetrics } from "./actions";
+
 export default async function DashboardPage() {
   const user = await currentUser();
 
@@ -16,33 +18,42 @@ export default async function DashboardPage() {
     return <div>Not authenticated</div>;
   }
 
-  // TODO: Replace with actual data from Supabase
+  // Fetch real dashboard metrics
+  let metrics;
+  try {
+    metrics = await fetchDashboardMetrics();
+  } catch {
+    return (
+      <div className="text-red-500">Failed to load dashboard metrics.</div>
+    );
+  }
+
   const stats = [
     {
       title: "Today's Appointments",
-      value: "12",
-      description: "3 more than yesterday",
+      value: metrics.todaysAppointments,
+      description: undefined, // Optionally add a description if needed
       icon: Calendar,
       color: "text-blue-600",
     },
     {
-      title: "Total Patients",
-      value: "1,234",
-      description: "Active patients this month",
+      title: "Patients This Week",
+      value: metrics.patientsThisWeek,
+      description: undefined,
       icon: Users,
       color: "text-green-600",
     },
     {
       title: "Total Doctors",
-      value: "23",
-      description: "Available doctors",
+      value: metrics.totalDoctors,
+      description: undefined,
       icon: BarChart3,
       color: "text-purple-600",
     },
     {
       title: "Pending Appointments",
-      value: "5",
-      description: "Awaiting confirmation",
+      value: metrics.pendingAppointments,
+      description: undefined,
       icon: Clock,
       color: "text-orange-600",
     },
