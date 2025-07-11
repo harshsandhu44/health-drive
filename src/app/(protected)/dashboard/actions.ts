@@ -86,8 +86,8 @@ export async function fetchTodaysAppointments() {
     .from("appointments")
     .select(
       `*,
-      patients!inner(name, phone_number),
-      doctors(name),
+      patients(name, phone_number),
+      doctors(name)
     `
     )
     .eq("organization_id", organization_id)
