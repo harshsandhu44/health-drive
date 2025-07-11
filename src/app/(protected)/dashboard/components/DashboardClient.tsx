@@ -182,8 +182,8 @@ export function DashboardClient({
             <AppointmentsTable
               data={initialAppointments}
               isLoading={isUpdating}
-              onStatusChange={handleStatusChange}
-              onEditAppointment={handleEditAppointment}
+              onStatusChangeAction={handleStatusChange}
+              onEditAppointmentAction={handleEditAppointment}
             />
           </CardContent>
         </Card>

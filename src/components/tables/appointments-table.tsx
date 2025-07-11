@@ -8,19 +8,19 @@ import { createAppointmentColumns } from "./appointments-columns";
 interface AppointmentsTableProps {
   data: Appointment[];
   isLoading?: boolean;
-  onStatusChange: (appointmentId: string, newStatus: string) => void;
-  onEditAppointment: (appointment: Appointment) => void;
+  onStatusChangeAction: (appointmentId: string, newStatus: string) => void;
+  onEditAppointmentAction: (appointment: Appointment) => void;
 }
 
 export function AppointmentsTable({
   data,
   isLoading = false,
-  onStatusChange,
-  onEditAppointment,
+  onStatusChangeAction,
+  onEditAppointmentAction,
 }: AppointmentsTableProps) {
   const columns = createAppointmentColumns({
-    onStatusChange,
-    onEditAppointment,
+    onStatusChangeAction,
+    onEditAppointmentAction,
   });
 
   return (

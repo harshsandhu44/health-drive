@@ -1,5 +1,6 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +20,10 @@ export const OrgHeader = () => {
         <h1 className="text-sm font-medium capitalize">
           {pathname.split("/").pop()}
         </h1>
+
+        <div className="ml-auto">
+          <UserButton />
+        </div>
       </div>
     </header>
   );

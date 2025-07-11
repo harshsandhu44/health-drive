@@ -34,13 +34,13 @@ const getStatusColor = (status: string) => {
 };
 
 interface AppointmentColumnsProps {
-  onStatusChange: (appointmentId: string, newStatus: string) => void;
-  onEditAppointment: (appointment: Appointment) => void;
+  onStatusChangeAction: (appointmentId: string, newStatus: string) => void;
+  onEditAppointmentAction: (appointment: Appointment) => void;
 }
 
 export const createAppointmentColumns = ({
-  onStatusChange,
-  onEditAppointment,
+  onStatusChangeAction,
+  onEditAppointmentAction,
 }: AppointmentColumnsProps): ColumnDef<Appointment>[] => [
   {
     accessorKey: "appointment_time",
@@ -132,7 +132,9 @@ export const createAppointmentColumns = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEditAppointment(appointment)}>
+            <DropdownMenuItem
+              onClick={() => onEditAppointmentAction(appointment)}
+            >
               Edit appointment
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -140,22 +142,30 @@ export const createAppointmentColumns = ({
               <DropdownMenuSubTrigger>Change status</DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <DropdownMenuItem
-                  onClick={() => onStatusChange(appointment.id, "scheduled")}
+                  onClick={() =>
+                    onStatusChangeAction(appointment.id, "scheduled")
+                  }
                 >
                   Scheduled
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onStatusChange(appointment.id, "completed")}
+                  onClick={() =>
+                    onStatusChangeAction(appointment.id, "completed")
+                  }
                 >
                   Completed
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onStatusChange(appointment.id, "cancelled")}
+                  onClick={() =>
+                    onStatusChangeAction(appointment.id, "cancelled")
+                  }
                 >
                   Cancelled
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onStatusChange(appointment.id, "no_show")}
+                  onClick={() =>
+                    onStatusChangeAction(appointment.id, "no_show")
+                  }
                 >
                   No show
                 </DropdownMenuItem>

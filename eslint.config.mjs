@@ -78,7 +78,7 @@ const eslintConfig = [
       "jsx-a11y/no-static-element-interactions": "warn",
 
       // General best practices
-      "no-console": "warn",
+      "no-console": ["warn", { allow: ["info", "warn", "error"] }],
       "no-debugger": "error",
       "no-duplicate-imports": "error",
       "no-unused-expressions": "error",
