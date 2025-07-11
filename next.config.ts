@@ -11,7 +11,7 @@ const pwaConfig = withPWA({
   sw: "sw.js",
   register: true,
   skipWaiting: true,
-  disable: false, // Enable PWA in development too
+  disable: true,
   buildExcludes: [/middleware-manifest\.json$/, /app-build-manifest\.json$/],
   runtimeCaching: [
     {
