@@ -23,9 +23,11 @@ export interface Appointment {
   patient_id: string;
   doctor_id: string;
   organization_id: string;
-  appointment_date: string;
-  appointment_time: string;
-  status: "scheduled" | "completed" | "cancelled" | "no_show";
+  date: string;
+  time: string;
+  appointment_date: string; // mapped from date
+  appointment_time: string; // mapped from time
+  status: "pending" | "confirmed" | "completed" | "cancelled";
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -64,7 +66,7 @@ export function DashboardClient({
     try {
       await updateAppointmentStatus(
         appointmentId,
-        newStatus as "scheduled" | "completed" | "cancelled" | "no_show"
+        newStatus as "pending" | "confirmed" | "completed" | "cancelled"
       );
 
       // Refresh the page to show updated data

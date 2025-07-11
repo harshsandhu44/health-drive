@@ -7,10 +7,14 @@ import { createSupabaseServerClient } from "@/lib/supabase";
 export async function fetchDashboardMetrics() {
   const user = await currentUser();
   if (!user) throw new Error("Not authenticated");
-  // Assume organization_id is available as user.organization_id (update if needed)
+  
+  // Get organization_id from Clerk user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organization_id;
-  if (!organization_id) throw new Error("No organization_id on user");
+  const organization_id = (user as any).organizationId || (user as any).orgId;
+  if (!organization_id) {
+    console.error("User object:", user);
+    throw new Error("No organization_id found on user");
+  }
 
   const supabase = await createSupabaseServerClient();
   const today = new Date().toISOString().split("T")[0];
@@ -18,12 +22,12 @@ export async function fetchDashboardMetrics() {
     .toISOString()
     .split("T")[0];
 
-  // Fetch today's appointments
+  // Fetch today's appointments (using correct column name 'date')
   const { data: todaysAppts, error: todaysError } = await supabase
     .from("appointments")
     .select("id")
     .eq("organization_id", organization_id)
-    .eq("appointment_date", today);
+    .eq("date", today);
   if (todaysError) throw todaysError;
 
   // Fetch total doctors
@@ -33,12 +37,12 @@ export async function fetchDashboardMetrics() {
     .eq("organization_id", organization_id);
   if (doctorsError) throw doctorsError;
 
-  // Fetch patients this week
+  // Fetch patients this week (using correct column name 'date')
   const { data: weeklyPatients, error: weeklyError } = await supabase
     .from("appointments")
     .select("patient_id")
     .eq("organization_id", organization_id)
-    .gte("appointment_date", weekAgo);
+    .gte("date", weekAgo);
   if (weeklyError) throw weeklyError;
 
   // Fetch appointment status counts
@@ -70,9 +74,14 @@ export async function fetchDashboardMetrics() {
 export async function fetchTodaysAppointments() {
   const user = await currentUser();
   if (!user) throw new Error("Not authenticated");
+  
+  // Get organization_id from Clerk user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organization_id;
-  if (!organization_id) throw new Error("No organization_id on user");
+  const organization_id = (user as any).organizationId || (user as any).orgId;
+  if (!organization_id) {
+    console.error("User object:", user);
+    throw new Error("No organization_id found on user");
+  }
 
   const supabase = await createSupabaseServerClient();
   const today = new Date().toISOString().split("T")[0];
@@ -82,13 +91,13 @@ export async function fetchTodaysAppointments() {
     .select(
       `*,
       patients!inner(name, phone_number),
-      doctors!inner(name),
-      departments!inner(name)
+      doctors(name),
+      departments(name)
     `
     )
     .eq("organization_id", organization_id)
-    .eq("appointment_date", today)
-    .order("appointment_time", { ascending: true });
+    .eq("date", today)
+    .order("time", { ascending: true });
 
   if (error) throw error;
 
@@ -96,6 +105,8 @@ export async function fetchTodaysAppointments() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?.map((apt: any) => ({
       ...apt,
+      appointment_date: apt.date,
+      appointment_time: apt.time,
       patient_name: apt.patients?.name,
       patient_phone: apt.patients?.phone_number,
       doctor_name: apt.doctors?.name,
@@ -106,13 +117,18 @@ export async function fetchTodaysAppointments() {
 
 export async function updateAppointmentStatus(
   appointmentId: string,
-  status: "scheduled" | "completed" | "cancelled" | "no_show"
+  status: "pending" | "confirmed" | "completed" | "cancelled"
 ) {
   const user = await currentUser();
   if (!user) throw new Error("Not authenticated");
+  
+  // Get organization_id from Clerk user
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const organization_id = (user as any).organization_id;
-  if (!organization_id) throw new Error("No organization_id on user");
+  const organization_id = (user as any).organizationId || (user as any).orgId;
+  if (!organization_id) {
+    console.error("User object:", user);
+    throw new Error("No organization_id found on user");
+  }
 
   const supabase = await createSupabaseServerClient();
 
