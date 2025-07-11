@@ -70,7 +70,6 @@ export function DashboardClient({
       // Refresh the page to show updated data
       router.refresh();
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to update appointment status:", error);
     } finally {
       setIsUpdating(false);
