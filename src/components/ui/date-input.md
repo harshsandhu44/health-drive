@@ -1,6 +1,7 @@
 # DateInput Component
 
-A comprehensive and dynamic date input component that combines a text input with a calendar picker, built with React, TypeScript, and integrated with the existing UI component system.
+A comprehensive and dynamic date input component that combines a text input with a calendar picker,
+built with React, TypeScript, and integrated with the existing UI component system.
 
 ## Features
 
@@ -21,38 +22,32 @@ import { DateInput } from "@/components/ui/date-input";
 function MyComponent() {
   const [date, setDate] = useState<Date>();
 
-  return (
-    <DateInput
-      value={date}
-      onChange={setDate}
-      placeholder="Select a date"
-    />
-  );
+  return <DateInput value={date} onChange={setDate} placeholder="Select a date" />;
 }
 ```
 
 ## Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `Date \| undefined` | - | The current date value |
-| `onChange` | `(date: Date \| undefined) => void` | - | Callback when date changes |
-| `placeholder` | `string` | `"Pick a date"` | Placeholder text for the input |
-| `dateFormat` | `string` | `"PPP"` | Date format for display (date-fns format) |
-| `inputDateFormat` | `string` | `"yyyy-MM-dd"` | Input date format for parsing user input |
-| `disabled` | `boolean` | `false` | Disable the input |
-| `required` | `boolean` | `false` | Required field |
-| `className` | `string` | - | Additional CSS classes |
-| `minDate` | `Date` | - | Minimum selectable date |
-| `maxDate` | `Date` | - | Maximum selectable date |
-| `showToday` | `boolean` | `true` | Show today button in calendar |
-| `showClear` | `boolean` | `true` | Show clear button |
-| `showMonthYearPicker` | `boolean` | `false` | Enable month and year dropdowns in calendar |
-| `name` | `string` | - | Name attribute for forms |
-| `error` | `boolean` | `false` | Error state |
-| `errorMessage` | `string` | - | Error message |
-| `inputProps` | `object` | - | Additional props for the input element |
-| `calendarProps` | `object` | - | Additional props for the calendar |
+| Prop                  | Type                                | Default         | Description                                 |
+| --------------------- | ----------------------------------- | --------------- | ------------------------------------------- |
+| `value`               | `Date \| undefined`                 | -               | The current date value                      |
+| `onChange`            | `(date: Date \| undefined) => void` | -               | Callback when date changes                  |
+| `placeholder`         | `string`                            | `"Pick a date"` | Placeholder text for the input              |
+| `dateFormat`          | `string`                            | `"PPP"`         | Date format for display (date-fns format)   |
+| `inputDateFormat`     | `string`                            | `"yyyy-MM-dd"`  | Input date format for parsing user input    |
+| `disabled`            | `boolean`                           | `false`         | Disable the input                           |
+| `required`            | `boolean`                           | `false`         | Required field                              |
+| `className`           | `string`                            | -               | Additional CSS classes                      |
+| `minDate`             | `Date`                              | -               | Minimum selectable date                     |
+| `maxDate`             | `Date`                              | -               | Maximum selectable date                     |
+| `showToday`           | `boolean`                           | `true`          | Show today button in calendar               |
+| `showClear`           | `boolean`                           | `true`          | Show clear button                           |
+| `showMonthYearPicker` | `boolean`                           | `false`         | Enable month and year dropdowns in calendar |
+| `name`                | `string`                            | -               | Name attribute for forms                    |
+| `error`               | `boolean`                           | `false`         | Error state                                 |
+| `errorMessage`        | `string`                            | -               | Error message                               |
+| `inputProps`          | `object`                            | -               | Additional props for the input element      |
+| `calendarProps`       | `object`                            | -               | Additional props for the calendar           |
 
 ## Examples
 
@@ -68,7 +63,7 @@ const oneWeekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
   placeholder="Select appointment date"
   minDate={today}
   maxDate={oneWeekFromNow}
-/>
+/>;
 ```
 
 ### Custom Format
@@ -128,7 +123,7 @@ import { Controller } from "react-hook-form";
       }}
     />
   )}
-/>
+/>;
 ```
 
 ### Zod Schema Integration
@@ -167,6 +162,7 @@ The component automatically parses user input in multiple formats:
 3. **Validation**: Shows error if neither format matches
 
 Users can type dates in formats like:
+
 - `2024-01-01`
 - `01/01/2024`
 - `January 1, 2024`
@@ -197,16 +193,19 @@ Enable quick navigation with month and year dropdowns by setting `showMonthYearP
 
 - **Month Dropdown**: Select any month of the current year
 - **Year Dropdown**: Navigate to any year (with reasonable range limits)
-- **Better UX**: Especially useful for selecting dates far from the current month (e.g., birth dates, historical dates)
+- **Better UX**: Especially useful for selecting dates far from the current month (e.g., birth
+  dates, historical dates)
 
 The dropdowns are particularly useful for:
+
 - Birth date selection (navigating far back in time)
 - Appointment scheduling (jumping to specific months)
 - Event planning (selecting future dates)
 
 ## Styling
 
-The component uses Tailwind CSS classes and integrates with the existing design system. You can customize styling through:
+The component uses Tailwind CSS classes and integrates with the existing design system. You can
+customize styling through:
 
 - `className` prop for the wrapper
 - `inputProps.className` for the input element
