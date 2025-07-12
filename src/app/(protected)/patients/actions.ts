@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 
 import { createSupabaseServiceClient, type Patient } from "@/lib/supabase";
 
+export type { Patient };
+
 export async function createPatient(
   formData: FormData
 ): Promise<{ success: boolean; patient?: Patient; error?: string }> {

@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { NewPatientForm } from "@/components/forms/NewPatientForm";
+import { ExistingPatientAppointment } from "@/components/forms/ExistingPatientAppointment";
+import { NewPatientAppointment } from "@/components/forms/NewPatientAppointment";
 import {
   Dialog,
   DialogContent,
@@ -38,9 +39,14 @@ export function CreateAppointmentModal({
             <TabsTrigger value="existing">Existing Patients</TabsTrigger>
           </TabsList>
           <TabsContent value="new">
-            <NewPatientForm doctors={doctors} onSuccess={onSuccess} />
+            <NewPatientAppointment doctors={doctors} onSuccess={onSuccess} />
           </TabsContent>
-          <TabsContent value="existing">Existing Patients</TabsContent>
+          <TabsContent value="existing">
+            <ExistingPatientAppointment
+              doctors={doctors}
+              onSuccess={onSuccess}
+            />
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>

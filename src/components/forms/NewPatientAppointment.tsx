@@ -6,6 +6,8 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { createAppointment } from "@/app/(protected)/appointments/actions";
+import { createPatient } from "@/app/(protected)/patients/actions";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import {
@@ -50,15 +52,15 @@ const formSchema = z.object({
   }),
 });
 
-interface NewPatientFormProps {
+interface NewPatientAppointmentProps {
   doctors?: Array<{ id: string; name: string; specialization?: string }>;
   onSuccess?: () => void;
 }
 
-export const NewPatientForm = ({
+export const NewPatientAppointment = ({
   doctors = [],
   onSuccess,
-}: NewPatientFormProps) => {
+}: NewPatientAppointmentProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,16 +78,49 @@ export const NewPatientForm = ({
     },
   });
 
-  const onSubmit = async (_data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      // For now, just show success message
-      // In a real implementation, this would create the patient and appointment
-      toast.success("Appointment created successfully!");
+      // First create the patient
+      const patientFormData = new FormData();
+      patientFormData.append("name", data.patient.name);
+      patientFormData.append("phone_number", data.patient.phone);
+      patientFormData.append(
+        "date_of_birth",
+        data.patient.dateOfBirth.toISOString().split("T")[0]
+      );
+      patientFormData.append("blood_group", data.patient.bloodGroup);
+
+      const patientResult = await createPatient(patientFormData);
+
+      if (!patientResult.success || !patientResult.patient) {
+        toast.error(patientResult.error || "Failed to create patient");
+        return;
+      }
+
+      // Then create the appointment with the new patient
+      const appointmentFormData = new FormData();
+      appointmentFormData.append("patient_id", patientResult.patient.id);
+      appointmentFormData.append("doctor_id", data.appointment.doctor);
+      appointmentFormData.append(
+        "date",
+        data.appointment.date.toISOString().split("T")[0]
+      );
+      appointmentFormData.append("time", data.appointment.time);
+      appointmentFormData.append("notes", "");
+
+      const appointmentResult = await createAppointment(appointmentFormData);
+
+      if (!appointmentResult.success) {
+        toast.error(appointmentResult.error || "Failed to create appointment");
+        return;
+      }
+
+      toast.success("Patient and appointment created successfully!");
       form.reset();
       onSuccess?.();
     } catch (error) {
-      console.error("Create appointment error:", error);
-      toast.error("Failed to create appointment");
+      console.error("Create patient appointment error:", error);
+      toast.error("Failed to create patient and appointment");
     }
   };
 
@@ -268,7 +303,7 @@ export const NewPatientForm = ({
             Create
           </Button>
 
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => {}}>
             Cancel
           </Button>
         </div>

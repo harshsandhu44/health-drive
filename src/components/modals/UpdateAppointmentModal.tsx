@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { updateAppointment } from "@/app/(protected)/appointments/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -97,7 +98,7 @@ export function UpdateAppointmentModal({
     }
   }, [appointment, form]);
 
-  const onSubmit = async (_data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     if (!appointment?.id) {
       toast.error("No appointment selected for update");
       return;
@@ -105,8 +106,21 @@ export function UpdateAppointmentModal({
 
     startTransition(async () => {
       try {
-        // For now, just show success message
-        // In a real implementation, this would call updateAppointment action
+        const formData = new FormData();
+        formData.append("patient_id", data.patient);
+        formData.append("doctor_id", data.doctor || "");
+        formData.append("date", data.date);
+        formData.append("time", data.time);
+        formData.append("status", data.status);
+        formData.append("notes", data.notes || "");
+
+        const result = await updateAppointment(appointment.id!, formData);
+
+        if (!result.success) {
+          toast.error(result.error || "Failed to update appointment");
+          return;
+        }
+
         toast.success("Appointment updated successfully");
         onOpenChange(false);
         onSuccess?.();
