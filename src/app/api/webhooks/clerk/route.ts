@@ -2,11 +2,12 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
 
-import { createSupabaseServerClient } from "@/lib/supabase";
+import { createSupabaseServiceClient } from "@/lib/supabase";
 
 // Clerk webhook events
 type WebhookEvent = {
   type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   object: string;
   timestamp: number;
@@ -48,8 +49,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Get Supabase client
-  const supabase = await createSupabaseServerClient();
+  // Get Supabase service client (bypasses RLS for webhook operations)
+  const supabase = createSupabaseServiceClient();
 
   try {
     switch (evt.type) {
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
           return new Response("Error creating organization", { status: 500 });
         }
 
-        console.log("Organization created:", id);
+        console.info("Organization created:", id);
         break;
       }
 
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
           return new Response("Error updating organization", { status: 500 });
         }
 
-        console.log("Organization updated:", id);
+        console.info("Organization updated:", id);
         break;
       }
 
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
           return new Response("Error deleting organization", { status: 500 });
         }
 
-        console.log("Organization deleted:", id);
+        console.info("Organization deleted:", id);
         break;
       }
 
@@ -135,7 +136,7 @@ export async function POST(req: NextRequest) {
               return new Response("Error creating user", { status: 500 });
             }
 
-            console.log(
+            console.info(
               "User created:",
               id,
               "in organization:",
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest) {
           return new Response("Error updating user", { status: 500 });
         }
 
-        console.log("User updated:", id);
+        console.info("User updated:", id);
         break;
       }
 
@@ -178,7 +179,7 @@ export async function POST(req: NextRequest) {
           return new Response("Error deleting user", { status: 500 });
         }
 
-        console.log("User deleted:", id);
+        console.info("User deleted:", id);
         break;
       }
 
@@ -203,7 +204,7 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          console.log(
+          console.info(
             "Organization membership created:",
             userId,
             organizationId
@@ -232,7 +233,7 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          console.log(
+          console.info(
             "Organization membership deleted:",
             userId,
             organizationId
@@ -242,7 +243,7 @@ export async function POST(req: NextRequest) {
       }
 
       default:
-        console.log("Unhandled webhook event:", evt.type);
+        console.info("Unhandled webhook event:", evt.type);
     }
 
     return NextResponse.json({ success: true });
