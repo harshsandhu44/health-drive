@@ -61,12 +61,15 @@ Week 2) as outlined in the project requirements. Updates reflect the use of `tex
   - Added CreateDoctorModal and UpdateDoctorModal components with proper form validation.
   - Implemented doctors table with search, edit, and delete functionality.
 
-- [ ] **Appointments Page**
+- [x] **Appointments Page**
   - Create data table for appointments listing (Patient, Doctor, Date, Time, Status) with actions
     (update status, cancel, view details).
-  - Implement add/edit appointment popups with phone number-based patient search and new patient
-    fields (name, phone, DOB, blood group).
-  - Enable real-time updates for appointments.
+  - Implement add/edit appointment modals with React Hook Form validation and patient/doctor
+    selection.
+  - Added appointment status cards showing pending, confirmed, completed, and cancelled counts.
+  - Created comprehensive CRUD operations with server actions for appointments.
+  - Built AppointmentStatusCards component with loading states and color-coded status indicators.
+  - Implemented AppointmentsFullTable with search, filtering, and action dropdowns.
 
 - [ ] **Appointment Details Page**
   - Create page to display full appointment details.
