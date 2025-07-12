@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -12,9 +13,9 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -32,7 +33,12 @@ const formSchema = z.object({
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(100, "Name must be less than 100 characters"),
-  contact: z.string().optional(),
+  contact: z
+    .string()
+    .optional()
+    .refine(val => (val ? isValidPhoneNumber(val) : true), {
+      message: "Invalid phone number",
+    }),
   specialization: z.string().optional(),
 });
 

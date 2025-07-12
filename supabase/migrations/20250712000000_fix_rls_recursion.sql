@@ -1,15 +1,15 @@
--- Row Level Security Policies for HealthDrive
--- These policies ensure data privacy and organization-specific access
+-- Fix infinite recursion in RLS policies
+-- This migration fixes the circular dependency in the users table RLS policy
 
--- Enable RLS on all tables
-ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
-ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
-ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE patient_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE analytics_logs ENABLE ROW LEVEL SECURITY;
+-- First, drop all existing policies to start fresh
+DROP POLICY IF EXISTS org_access ON organizations;
+DROP POLICY IF EXISTS user_access ON users;
+DROP POLICY IF EXISTS dept_access ON departments;
+DROP POLICY IF EXISTS doctor_access ON doctors;
+DROP POLICY IF EXISTS patient_access ON patients;
+DROP POLICY IF EXISTS appt_access ON appointments;
+DROP POLICY IF EXISTS record_access ON patient_records;
+DROP POLICY IF EXISTS analytics_access ON analytics_logs;
 
 -- Create a security definer function to get user's organization_id
 -- This function bypasses RLS to avoid infinite recursion
@@ -97,4 +97,4 @@ CREATE POLICY record_access ON patient_records
 CREATE POLICY analytics_access ON analytics_logs
   FOR ALL
   USING (organization_id = get_user_organization_id())
-  WITH CHECK (organization_id = get_user_organization_id()); 
+  WITH CHECK (organization_id = get_user_organization_id());
