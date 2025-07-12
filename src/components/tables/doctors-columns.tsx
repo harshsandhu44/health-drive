@@ -2,7 +2,10 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import {
@@ -30,7 +33,14 @@ export const createDoctorColumns = ({
     ),
     cell: ({ row }) => {
       const name = row.getValue("name") as string;
-      return <div className="font-medium">{name}</div>;
+      return (
+        <div className="flex items-center gap-2 font-medium">
+          <Avatar>
+            <AvatarFallback>{name[0]}</AvatarFallback>
+          </Avatar>
+          <span>{name}</span>
+        </div>
+      );
     },
   },
   {
@@ -50,7 +60,11 @@ export const createDoctorColumns = ({
     ),
     cell: ({ row }) => {
       const contact = row.getValue("contact") as string;
-      return <div>{contact || "—"}</div>;
+      return (
+        <Link href={`tel:${contact}`}>
+          {formatPhoneNumberIntl(contact) || "—"}
+        </Link>
+      );
     },
   },
   {

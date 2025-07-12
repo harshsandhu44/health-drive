@@ -149,7 +149,7 @@ export async function fetchDoctors(): Promise<Doctor[]> {
       .from("doctors")
       .select("*")
       .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false });
+      .order("name", { ascending: false });
 
     if (error) {
       console.error("Fetch doctors error:", error);
