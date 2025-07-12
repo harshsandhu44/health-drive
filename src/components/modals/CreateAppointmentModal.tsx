@@ -1,54 +1,43 @@
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
+import { NewPatientForm } from "@/components/forms/NewPatientForm";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogDescription,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CreateAppointmentModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
 }
 
 export function CreateAppointmentModal({
-  open,
-  onOpenChange,
+  children,
 }: CreateAppointmentModalProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Appointment</DialogTitle>
+          <DialogDescription>
+            Create an appointment for existing patients or a new patient.
+          </DialogDescription>
         </DialogHeader>
-        <form className="space-y-4">
-          <Input placeholder="Patient" name="patient" />
-          <Input placeholder="Doctor" name="doctor" />
-          <Input placeholder="Department" name="department" />
-          <Input type="date" name="date" />
-          <Input type="time" name="time" />
-          <Select name="status" defaultValue="pending">
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </Select>
-        </form>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            type="button"
-          >
-            Cancel
-          </Button>
-          <Button type="submit">Create</Button>
-        </DialogFooter>
+        <Tabs defaultValue="new">
+          <TabsList className="w-full">
+            <TabsTrigger value="new">New Patient</TabsTrigger>
+            <TabsTrigger value="existing">Existing Patients</TabsTrigger>
+          </TabsList>
+          <TabsContent value="new">
+            <NewPatientForm />
+          </TabsContent>
+          <TabsContent value="existing">Existing Patients</TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

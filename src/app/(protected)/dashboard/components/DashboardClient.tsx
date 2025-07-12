@@ -1,7 +1,13 @@
 "use client";
 import * as React from "react";
 
-import { Calendar, Users, UserCheck, Activity } from "lucide-react";
+import {
+  Calendar,
+  Users,
+  UserCheck,
+  Activity,
+  PlusCircleIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { CreateAppointmentModal } from "@/components/modals/CreateAppointmentModal";
@@ -64,7 +70,6 @@ export function DashboardClient({
   initialAppointments,
 }: DashboardClientProps) {
   const router = useRouter();
-  const [createOpen, setCreateOpen] = React.useState(false);
   const [updateOpen, setUpdateOpen] = React.useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     React.useState<Appointment | null>(null);
@@ -98,11 +103,9 @@ export function DashboardClient({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {user.firstName}!
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-300">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold">Welcome back, {user.firstName}!</h1>
+        <p>
           Here&apos;s what&apos;s happening with your healthcare facility today.
         </p>
       </div>
@@ -185,11 +188,11 @@ export function DashboardClient({
             <CardDescription>
               All appointments scheduled for today with search and filtering
             </CardDescription>
-            <div className="mt-2">
-              <Button onClick={() => setCreateOpen(true)}>
-                + Create Appointment
+            <CreateAppointmentModal>
+              <Button variant="outline" className="w-fit">
+                <PlusCircleIcon /> Create Appointment
               </Button>
-            </div>
+            </CreateAppointmentModal>
           </CardHeader>
           <CardContent>
             <AppointmentsTable
@@ -200,45 +203,9 @@ export function DashboardClient({
             />
           </CardContent>
         </Card>
-
-        {/* Quick Actions Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => setCreateOpen(true)}
-            >
-              Schedule new appointment
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => {
-                // TODO: Add patient creation modal
-              }}
-            >
-              Add new patient
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => {
-                // TODO: Navigate to analytics page
-              }}
-            >
-              View analytics
-            </Button>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Modals */}
-      <CreateAppointmentModal open={createOpen} onOpenChange={setCreateOpen} />
       <UpdateAppointmentModal
         open={updateOpen}
         onOpenChange={setUpdateOpen}
