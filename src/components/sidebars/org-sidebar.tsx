@@ -11,7 +11,9 @@ import {
   User,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+import { CreateAppointmentModal } from "@/components/modals/CreateAppointmentModal";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Sidebar,
@@ -27,6 +29,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
+
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { name: "Appointments", href: "/appointments", icon: Calendar },
@@ -55,16 +59,18 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent className="flex flex-col gap-4">
             <SidebarMenu>
               <SidebarMenuItem className="flex items-center gap-2">
-                <SidebarMenuButton
-                  tooltip="Quick Create"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "w-full justify-start"
-                  )}
-                >
-                  <PlusCircleIcon />
-                  <span>Create Appointment</span>
-                </SidebarMenuButton>
+                <CreateAppointmentModal>
+                  <SidebarMenuButton
+                    tooltip="Create Appointment"
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "w-full justify-start"
+                    )}
+                  >
+                    <PlusCircleIcon />
+                    <span>Create Appointment</span>
+                  </SidebarMenuButton>
+                </CreateAppointmentModal>
               </SidebarMenuItem>
             </SidebarMenu>
             <SidebarMenu>
@@ -76,9 +82,10 @@ export function OrgSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       buttonVariants({ variant: "ghost", size: "sm" }),
                       "w-full justify-start"
                     )}
+                    onClick={() => router.push(item.href)}
                   >
                     {item.icon && <item.icon />}
-                    <span>{item.name}</span>
+                    <span className="text-sm">{item.name}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
