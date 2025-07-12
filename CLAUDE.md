@@ -42,12 +42,18 @@ repository.
 
 - `src/app/(auth)/` - Authentication pages (sign-in)
 - `src/app/(protected)/` - Protected routes with sidebar layout
+  - `dashboard/` - Main overview with metrics and today's appointments
+  - `appointments/` - Complete appointment management with dual creation modes
+  - `doctors/` - Healthcare provider management with CRUD operations
+  - `patients/` - Patient records management with search capabilities
+  - `analytics/` - Healthcare facility performance insights and metrics
 - `src/app/api/webhooks/clerk/` - Clerk webhook handler for user sync
 
 **State Management**:
 
-- Global stores in `src/stores/` using Zustand
-- Server state with React Query patterns
+- Server actions for CRUD operations in each route's `actions.ts` file
+- Client-side state management with React hooks
+- Real-time updates through Supabase subscriptions
 - UI state separated from business logic
 
 **Database Integration**:
@@ -66,12 +72,36 @@ repository.
 
 ### Database Schema
 
-The application uses a multi-tenant architecture with:
+The application uses a multi-tenant healthcare architecture with:
 
-- `organizations` - Top-level tenant isolation
-- `users` - Synced with Clerk via webhooks
-- `doctors`, `patients`, `appointments` - Core healthcare entities
-- `analytics_logs` - Metrics tracking
+- `organizations` - Top-level tenant isolation with billing status
+- `users` - Synced with Clerk via webhooks, role-based access (admin, staff, doctor)
+- `doctors` - Healthcare providers with specializations and contact information
+- `patients` - Patient records with demographics, blood group, and medical history
+- `appointments` - Scheduling system with status tracking, notes, and patient/doctor relationships
+- `analytics_logs` - Performance metrics and usage tracking
+
+### CRUD Operations Available
+
+**Doctors Management**:
+
+- Create, read, update, delete healthcare providers
+- Specialization and contact information management
+- Organization-level access control
+
+**Patients Management**:
+
+- Full patient record management with demographics
+- Advanced search by name, phone number
+- Blood group tracking and age calculation
+- Safety checks for deletion (prevents removal if appointments exist)
+
+**Appointments Management**:
+
+- Dual creation modes: new patient + appointment, existing patient scheduling
+- Status workflow: pending → confirmed → completed/cancelled
+- Real-time status updates and notes management
+- Patient and doctor relationship tracking
 
 ### Authentication Flow
 
@@ -103,18 +133,27 @@ The application uses a multi-tenant architecture with:
 - Seed data in `supabase/seed.sql`
 - Always regenerate types after schema changes
 
-### State Management Patterns
+### Healthcare Application Patterns
 
-- Use Zustand stores for global state
-- React Query for server state and caching
-- Separate stores by domain (auth, appointments, analytics, etc.)
+**Server Actions**:
 
-### Component Development
+- Each protected route has an `actions.ts` file with CRUD operations
+- All database operations use service role client for proper permissions
+- FormData pattern for form submissions with proper validation
 
-- Follow shadcn/ui patterns for new components
-- Use Radix UI primitives for accessibility
-- Implement proper loading and error states
-- Use CVA (Class Variance Authority) for component variants
+**Component Patterns**:
+
+- Modal-based CRUD operations for doctors, patients, appointments
+- Search and filter capabilities for patient management
+- Real-time status updates for appointments
+- Dual-mode forms for new vs existing patient workflows
+
+**Form Management**:
+
+- React Hook Form with Zod validation for all healthcare forms
+- Patient intake forms with medical information validation
+- Appointment scheduling with date/time validation
+- Error handling and success feedback for all operations
 
 ### Environment Setup
 

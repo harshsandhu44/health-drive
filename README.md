@@ -1,32 +1,68 @@
 # Health Drive 🏥
 
-A modern health management platform built with Next.js 15, React 19, and TypeScript. Health Drive
-provides a comprehensive solution for managing health records, appointments, and wellness tracking.
+A comprehensive healthcare management platform built with Next.js 15, React 19, and TypeScript.
+Health Drive provides a complete solution for healthcare facilities to manage doctors, patients,
+appointments, and analytics in a modern, secure environment.
 
-## ✨ Features
+## ✨ Core Features
+
+### 🏥 **Healthcare Management**
+
+- **👨‍⚕️ Doctor Management** - Complete CRUD operations for healthcare providers with specializations
+- **👥 Patient Management** - Comprehensive patient records with search and filtering capabilities
+- **📅 Appointment System** - Advanced scheduling with dual creation modes (new/existing patients)
+- **📊 Healthcare Analytics** - Real-time insights and performance metrics
+- **🔍 Advanced Search** - Find patients by name, phone, or other criteria instantly
+
+### 🔧 **Technical Features**
 
 - **📱 Progressive Web App (PWA)** - Works offline and can be installed on devices
-- **🔐 Secure Authentication** - Powered by Clerk
-- **📊 Real-time Data** - Integrated with Supabase for real-time updates
-- **🎨 Modern UI** - Built with Radix UI components and Tailwind CSS
-- **📈 Analytics & Charts** - Interactive charts with Recharts
-- **🌙 Dark Mode** - Theme switching with next-themes
-- **♿ Accessibility** - WCAG compliant components
-- **📱 Responsive Design** - Mobile-first approach
+- **🔐 Multi-tenant Authentication** - Organization-based access control with Clerk
+- **📊 Real-time Data** - Live updates with Supabase integration and Row Level Security
+- **🎨 Modern UI** - Professional healthcare interface with Radix UI and Tailwind CSS
+- **♿ Accessibility** - WCAG compliant components for healthcare compliance
+- **📱 Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
+
+## 🏗️ Application Architecture
+
+### 📋 **Page Structure**
+
+- **🏠 Dashboard** - Overview with key metrics, today's appointments, and quick actions
+- **📅 Appointments** - Complete appointment management with status tracking and scheduling
+- **👨‍⚕️ Doctors** - Healthcare provider management with specializations and contact details
+- **👥 Patients** - Patient records management with search and demographic tracking
+- **📊 Analytics** - Comprehensive insights and performance metrics for the healthcare facility
+
+### 🔄 **Appointment Workflows**
+
+- **New Patient + Appointment** - Create patient record and schedule appointment in one workflow
+- **Existing Patient + Appointment** - Quick appointment scheduling for existing patients with
+  search
+- **Appointment Management** - Update status, modify details, and track appointment lifecycle
+- **Status Tracking** - Real-time status updates (Pending → Confirmed → Completed/Cancelled)
 
 ## 🚀 Tech Stack
 
-- **Framework**: [Next.js 15](https://nextjs.org/) with App Router
-- **Runtime**: [React 19](https://reactjs.org/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: [Radix UI](https://www.radix-ui.com/)
-- **Authentication**: [Clerk](https://clerk.com/)
-- **Database**: [Supabase](https://supabase.com/)
-- **State Management**: [TanStack Query](https://tanstack.com/query)
-- **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
-- **Charts**: [Recharts](https://recharts.org/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+### **Frontend & Framework**
+
+- **Framework**: [Next.js 15](https://nextjs.org/) with App Router and React 19
+- **Language**: [TypeScript](https://www.typescriptlang.org/) with strict mode
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with custom healthcare theme
+- **UI Components**: [Radix UI](https://www.radix-ui.com/) with shadcn/ui patterns
+
+### **Backend & Database**
+
+- **Database**: [Supabase](https://supabase.com/) PostgreSQL with real-time subscriptions
+- **Authentication**: [Clerk](https://clerk.com/) with organization-based multi-tenancy
+- **API**: Next.js API routes with TypeScript and server actions
+- **Security**: Row Level Security (RLS) policies for data isolation
+
+### **Development & Quality**
+
+- **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) validation
+- **State Management**: Zustand stores with React Query for server state
+- **Code Quality**: ESLint, Prettier, TypeScript strict mode, Husky git hooks
+- **Testing**: TypeScript compilation and linting enforcement
 
 ## 🛠️ Getting Started
 
@@ -88,6 +124,16 @@ provides a comprehensive solution for managing health records, appointments, and
 | `npm run type-check`   | Run TypeScript type checking            |
 | `npm run pre-commit`   | Run all checks (types, lint, format)    |
 
+### 🗄️ **Database Scripts**
+
+| Script                                      | Description                                    |
+| ------------------------------------------- | ---------------------------------------------- |
+| `npx supabase start`                        | Start local Supabase instance                  |
+| `npx supabase stop`                         | Stop local Supabase instance                   |
+| `npx supabase reset`                        | Reset database with fresh schema and seed data |
+| `npx supabase db push`                      | Push schema changes to remote database         |
+| `npx supabase gen types typescript --local` | Generate TypeScript types from database        |
+
 ## 🧰 Development Workflow
 
 ### Code Quality
@@ -141,32 +187,54 @@ chore: update dependencies
 4. **Component organization**:
    ```
    src/
-   ├── app/              # Next.js App Router pages
-   ├── components/       # Reusable components
-   │   ├── ui/          # Base UI components
-   │   └── features/    # Feature-specific components
-   ├── hooks/           # Custom React hooks
-   ├── lib/             # Utilities and configurations
-   └── types/           # TypeScript type definitions
+   ├── app/                    # Next.js App Router
+   │   ├── (auth)/            # Authentication pages
+   │   ├── (protected)/       # Protected routes with layouts
+   │   │   ├── dashboard/     # Dashboard page and components
+   │   │   ├── appointments/  # Appointments management
+   │   │   ├── doctors/       # Doctors management
+   │   │   ├── patients/      # Patients management
+   │   │   └── analytics/     # Analytics dashboard
+   │   └── api/               # API routes and webhooks
+   ├── components/            # Reusable components
+   │   ├── ui/               # Base UI components (shadcn/ui)
+   │   ├── forms/            # Form components
+   │   ├── modals/           # Modal components
+   │   ├── tables/           # Data table components
+   │   ├── cards/            # Card components
+   │   ├── sidebars/         # Navigation components
+   │   └── headers/          # Header components
+   ├── hooks/                # Custom React hooks
+   ├── lib/                  # Utilities and configurations
+   └── middleware.ts         # Clerk authentication middleware
    ```
 
-## 🎨 UI Components
+## 🎨 Healthcare UI System
 
-The project uses a comprehensive design system built on:
+The project uses a comprehensive healthcare-focused design system:
 
-- **Radix UI**: Headless, accessible components
-- **Tailwind CSS**: Utility-first styling
-- **CVA**: Class variance authority for component variants
-- **Lucide React**: Beautiful, customizable icons
+### **Design Foundation**
 
-### Available Components
+- **Radix UI**: Headless, accessible components for healthcare compliance
+- **Tailwind CSS**: Utility-first styling with healthcare color palette
+- **CVA**: Class variance authority for consistent component variants
+- **Lucide React**: Medical and healthcare-specific icons
 
-- Forms: Input, Select, Checkbox, Radio, Switch
-- Navigation: Breadcrumb, Pagination, Tabs
-- Overlays: Dialog, Popover, Tooltip, Sheet
-- Data Display: Table, Card, Badge, Avatar
-- Feedback: Alert, Progress, Skeleton
-- And many more...
+### **Healthcare Components**
+
+- **Forms**: Patient intake, appointment scheduling, doctor management
+- **Tables**: Patient lists, appointment schedules, analytics data
+- **Cards**: Status summaries, metric displays, patient cards
+- **Modals**: Appointment creation/editing, patient management
+- **Navigation**: Healthcare-specific sidebar and navigation
+- **Data Display**: Medical records, appointment status, analytics charts
+
+### **Accessibility & Compliance**
+
+- WCAG 2.1 AA compliant components
+- Healthcare industry color contrast standards
+- Keyboard navigation for all interactive elements
+- Screen reader optimized for medical data
 
 ## 📱 PWA Features
 
@@ -185,15 +253,54 @@ Health Drive is built as a Progressive Web App with:
 - `tailwind.config.js`: Tailwind CSS customization
 - `next.config.ts`: Next.js configuration with PWA support
 
+## 🗄️ Database Schema
+
+### **Core Entities**
+
+- **Organizations** - Multi-tenant isolation with billing status
+- **Users** - Role-based access (admin, staff, doctor) with organization linking
+- **Doctors** - Healthcare providers with specializations and contact info
+- **Patients** - Patient records with demographics and medical info
+- **Appointments** - Scheduling system with status tracking and notes
+
+### **Security Features**
+
+- **Row Level Security (RLS)** - Organization-based data isolation
+- **Service Role Actions** - Secure server-side operations
+- **Real-time Subscriptions** - Live data updates across clients
+- **Audit Logging** - Analytics logs for performance tracking
+
+## 📊 Key Features Implemented
+
+### ✅ **Complete CRUD Operations**
+
+- **Doctors**: Create, read, update, delete healthcare providers
+- **Patients**: Full patient management with search capabilities
+- **Appointments**: Comprehensive scheduling and status management
+
+### ✅ **Advanced Workflows**
+
+- **Dual Creation Modes**: New patient + appointment or existing patient scheduling
+- **Real-time Updates**: Live appointment status changes
+- **Search & Filter**: Patient search by name, phone, demographics
+- **Analytics Dashboard**: Healthcare facility performance insights
+
+### ✅ **Healthcare-Specific Features**
+
+- **Status Tracking**: Pending → Confirmed → Completed/Cancelled workflows
+- **Patient Demographics**: Age calculation, blood group tracking
+- **Doctor Specializations**: Medical specialty management
+- **Appointment Notes**: Clinical notes and observations
+
 ## 📚 Project Documentation
 
 Detailed documentation is available in the `docs/` directory:
 
-- [Project Requirements](./docs/project-requirements.md)
-- [Database Schema](./docs/database-schema.md)
-- [Business Model](./docs/business-model.md)
-- [Data Flow](./docs/data-flow.md)
-- [Wireframes](./docs/wireframes.md)
+- [Project Requirements](./docs/project-requirements.md) - Feature specifications and requirements
+- [Database Schema](./docs/database-schema.md) - Complete database structure and relationships
+- [Business Model](./docs/business-model.md) - Healthcare business logic and workflows
+- [Data Flow](./docs/data-flow.md) - Application data flow and state management
+- [Wireframes](./docs/wireframes.md) - UI/UX design specifications
 
 ## 🤝 Contributing
 
