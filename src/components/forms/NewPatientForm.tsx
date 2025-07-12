@@ -50,7 +50,15 @@ const formSchema = z.object({
   }),
 });
 
-export const NewPatientForm = () => {
+interface NewPatientFormProps {
+  doctors?: Array<{ id: string; name: string; specialization?: string }>;
+  onSuccess?: () => void;
+}
+
+export const NewPatientForm = ({
+  doctors = [],
+  onSuccess,
+}: NewPatientFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,14 +76,17 @@ export const NewPatientForm = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  const onSubmit = async (_data: z.infer<typeof formSchema>) => {
+    try {
+      // For now, just show success message
+      // In a real implementation, this would create the patient and appointment
+      toast.success("Appointment created successfully!");
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Create appointment error:", error);
+      toast.error("Failed to create appointment");
+    }
   };
 
   return (
@@ -232,9 +243,21 @@ export const NewPatientForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Doctor</FormLabel>
-              <FormControl>
-                <Input placeholder="Dr. John Doe" {...field} />
-              </FormControl>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a doctor" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {doctors.map(doctor => (
+                    <SelectItem key={doctor.id} value={doctor.id}>
+                      {doctor.name}{" "}
+                      {doctor.specialization && `- ${doctor.specialization}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

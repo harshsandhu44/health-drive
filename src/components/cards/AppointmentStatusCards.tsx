@@ -59,6 +59,7 @@ export function AppointmentStatusCards({
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Card key={`skeleton-${i}`} className="animate-pulse">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -82,7 +83,7 @@ export function AppointmentStatusCards({
         return (
           <Card
             key={card.title}
-            className={`${card.borderColor} ${card.bgColor} border-l-4`}
+            className={`${card.borderColor} ${card.bgColor}`}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-700">
@@ -94,7 +95,7 @@ export function AppointmentStatusCards({
               <div className={`text-2xl font-bold ${card.color}`}>
                 {card.value}
               </div>
-              <p className="mt-1 text-xs text-gray-600">
+              <p className="mt-1 text-xs text-gray-600 capitalize">
                 {card.title.toLowerCase()} appointments
               </p>
             </CardContent>

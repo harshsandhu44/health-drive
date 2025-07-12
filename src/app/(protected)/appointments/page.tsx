@@ -6,8 +6,8 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppointmentStatusCards } from "@/components/cards/AppointmentStatusCards";
-import { CreateAppointmentFullModal } from "@/components/modals/CreateAppointmentFullModal";
-import { UpdateAppointmentFullModal } from "@/components/modals/UpdateAppointmentFullModal";
+import { CreateAppointmentModal } from "@/components/modals/CreateAppointmentModal";
+import { UpdateAppointmentModal } from "@/components/modals/UpdateAppointmentModal";
 import { AppointmentsFullTable } from "@/components/tables/appointments-full-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import {
   fetchAppointmentStats,
   updateAppointmentStatus,
   deleteAppointment,
+  fetchDoctorsForAppointments,
   type FullAppointment,
 } from "./actions";
 
@@ -29,32 +30,33 @@ export default function AppointmentsPage() {
     cancelled: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedAppointment, setSelectedAppointment] = useState<
-    FullAppointment | undefined
-  >();
+  const [selectedAppointment, setSelectedAppointment] = useState<{
+    id?: string;
+    patient?: string;
+    doctor?: string;
+    department?: string;
+    date?: string;
+    time?: string;
+    status?: string;
+    notes?: string;
+  }>();
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [doctors, setDoctors] = useState<
+    Array<{ id: string; name: string; specialization?: string }>
+  >([]);
   const [, startTransition] = useTransition();
-
-  // Mock data for now - in real implementation, these would be fetched from the server
-  const [patients] = useState([
-    { id: "1", name: "John Doe", phone_number: "+1234567890" },
-    { id: "2", name: "Jane Smith", phone_number: "+0987654321" },
-  ]);
-
-  const [doctors] = useState([
-    { id: "1", name: "Dr. Smith", specialization: "Cardiology" },
-    { id: "2", name: "Dr. Johnson", specialization: "Pediatrics" },
-  ]);
 
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [appointmentsData, statsData] = await Promise.all([
+      const [appointmentsData, statsData, doctorsData] = await Promise.all([
         fetchAppointments(),
         fetchAppointmentStats(),
+        fetchDoctorsForAppointments(),
       ]);
       setAppointments(appointmentsData);
       setAppointmentStats(statsData);
+      setDoctors(doctorsData);
     } catch (error) {
       console.error("Failed to load appointments data:", error);
       toast.error("Failed to load appointments data");
@@ -88,7 +90,15 @@ export default function AppointmentsPage() {
   };
 
   const handleEditAppointment = (appointment: FullAppointment) => {
-    setSelectedAppointment(appointment);
+    setSelectedAppointment({
+      id: appointment.id,
+      patient: appointment.patient_name,
+      doctor: appointment.doctor_id,
+      date: appointment.date,
+      time: appointment.time,
+      status: appointment.status,
+      notes: appointment.notes,
+    });
     setUpdateModalOpen(true);
   };
 
@@ -126,16 +136,12 @@ export default function AppointmentsPage() {
             Manage your organization&apos;s appointments
           </p>
         </div>
-        <CreateAppointmentFullModal
-          onSuccess={handleSuccess}
-          patients={patients}
-          doctors={doctors}
-        >
+        <CreateAppointmentModal doctors={doctors} onSuccess={handleSuccess}>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Appointment
           </Button>
-        </CreateAppointmentFullModal>
+        </CreateAppointmentModal>
       </div>
 
       {/* Status Cards */}
@@ -158,13 +164,12 @@ export default function AppointmentsPage() {
       </Card>
 
       {/* Update Modal */}
-      <UpdateAppointmentFullModal
+      <UpdateAppointmentModal
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         appointment={selectedAppointment}
-        onSuccess={handleSuccess}
-        patients={patients}
         doctors={doctors}
+        onSuccess={handleSuccess}
       />
     </div>
   );

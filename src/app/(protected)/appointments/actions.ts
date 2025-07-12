@@ -3,7 +3,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
-import { createSupabaseServiceClient, type Appointment } from "@/lib/supabase";
+import {
+  createSupabaseServiceClient,
+  type Appointment,
+  type Doctor,
+} from "@/lib/supabase";
 
 // Extended appointment interface for the full appointments page
 export interface FullAppointment {
@@ -289,5 +293,33 @@ export async function deleteAppointment(
   } catch (error) {
     console.error("Delete appointment error:", error);
     return { success: false, error: "Failed to delete appointment" };
+  }
+}
+
+export async function fetchDoctorsForAppointments(): Promise<Doctor[]> {
+  try {
+    const { orgId } = await auth();
+    if (!orgId) {
+      return [];
+    }
+
+    const organizationId = orgId;
+    const supabase = createSupabaseServiceClient();
+
+    const { data: doctors, error } = await supabase
+      .from("doctors")
+      .select("*")
+      .eq("organization_id", organizationId)
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Fetch doctors error:", error);
+      return [];
+    }
+
+    return doctors || [];
+  } catch (error) {
+    console.error("Fetch doctors error:", error);
+    return [];
   }
 }

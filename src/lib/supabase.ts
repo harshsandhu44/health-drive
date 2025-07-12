@@ -96,6 +96,7 @@ export interface Appointment {
   date: string;
   time: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
+  notes?: string;
 }
 
 export interface PatientRecord {

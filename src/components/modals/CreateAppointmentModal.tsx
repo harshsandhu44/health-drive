@@ -13,10 +13,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CreateAppointmentModalProps {
   children: React.ReactNode;
+  doctors?: Array<{ id: string; name: string; specialization?: string }>;
+  onSuccess?: () => void;
 }
 
 export function CreateAppointmentModal({
   children,
+  doctors = [],
+  onSuccess,
 }: CreateAppointmentModalProps) {
   return (
     <Dialog>
@@ -34,7 +38,7 @@ export function CreateAppointmentModal({
             <TabsTrigger value="existing">Existing Patients</TabsTrigger>
           </TabsList>
           <TabsContent value="new">
-            <NewPatientForm />
+            <NewPatientForm doctors={doctors} onSuccess={onSuccess} />
           </TabsContent>
           <TabsContent value="existing">Existing Patients</TabsContent>
         </Tabs>
