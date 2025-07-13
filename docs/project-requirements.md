@@ -1,0 +1,255 @@
+# HealthDrive Project Requirements Document
+
+## 1. Project Overview
+
+### 1.1 Purpose
+
+HealthDrive is a B2B SaaS application designed to streamline healthcare facility operations by
+providing efficient management of appointments, doctors, departments, and patient records while
+ensuring data privacy and real-time analytics.
+
+### 1.2 Goals
+
+- Develop a system to manage appointments, doctors, and departments.
+- Enable shared patient medical records across facilities, accessible only via patient phone numbers
+  for privacy.
+- Provide real-time analytics for appointments, doctor performance, and patient retention.
+- Create a user-friendly, installable Progressive Web App (PWA) with notifications.
+
+### 1.3 Scope
+
+The application will include:
+
+- Appointment booking and management with status updates and detailed views.
+- Doctor and department management.
+- Real-time analytics with exportable reports.
+- Secure patient record access using phone numbers.
+- Authentication and organization management.
+- Billing integration and support functionality.
+
+## 2. Functional Requirements
+
+### 2.1 Features
+
+#### 2.1.1 Dashboard
+
+- Display real-time analytics cards for:
+  - Today's appointments.
+  - Patients visited in the current week.
+  - Total doctors in the organization.
+- Data table showing today's appointments with filtering, sorting, and actions:
+  - Update appointment status (e.g., Confirmed, Pending, Completed).
+  - Cancel appointment.
+  - View appointment details (links to a separate details page).
+
+#### 2.1.2 Appointments
+
+- Real-time listing of all appointments in a data table with actions:
+  - Update appointment status.
+  - Cancel appointment.
+  - View appointment details (links to a separate details page).
+- Popup for adding new appointments with patient search:
+  - Search existing patients by phone number (only visible if phone matches).
+  - Add new patient if not found (fields: name, phone number, date of birth, blood group).
+  - Other fields: doctor, department, date, time.
+- Popup for editing existing appointments.
+- Real-time updates for appointment changes.
+- Appointment details page to view full appointment information.
+
+#### 2.1.3 Doctors
+
+- Data table listing all doctors with details (name, department, contact).
+- Popup for adding new doctors (fields: name, department, contact, specialization).
+- Popup for editing doctor information.
+- Rankings based on the number of patients handled per doctor.
+
+#### 2.1.4 Analytics
+
+- Detailed analytics page showing:
+  - Total appointments.
+  - Appointments per doctor.
+  - Returning patients.
+- Functionality to download analytics as CSV or PDF.
+
+#### 2.1.5 Departments
+
+- Manage departments (create, edit, delete).
+- Assign doctors to departments.
+
+#### 2.1.6 Patient Records
+
+- Shared medical records across facilities.
+- Access patient records using phone numbers for privacy.
+- Patient fields: name, phone number, date of birth, blood group, medical history.
+- View and update patient medical history.
+
+#### 2.1.7 Authentication
+
+- User and organization authentication via Clerk.
+- Sync organizations and users to Supabase via Clerk webhook.
+
+#### 2.1.8 Billing
+
+- Subscription-based billing for organizations using Paytm SDK.
+- Manage billing plans and payment statuses.
+
+#### 2.1.9 Support
+
+- Help page with contact email (support@healthdrive.in) for organizations to reach out.
+
+### 2.2 Non-Functional Requirements
+
+- **Performance**: Real-time updates for appointments and analytics with minimal latency.
+- **Scalability**: Support multiple facilities and users with Supabase.
+- **Security**: Secure patient data access via phone number authentication; Clerk for user
+  authentication.
+- **Usability**: Intuitive UI using Shadcn UI components and TailwindCSS.
+- **Accessibility**: PWA support for notifications and offline capabilities.
+- **Maintainability**: Modular code structure with Next.js 15.
+
+## 3. Technical Requirements
+
+### 3.1 Tech Stack
+
+- **Frontend**:
+  - Next.js 15 (Server-side rendering).
+  - TailwindCSS 4.1 (Styling).
+  - Shadcn UI (Reusable components).
+  - Motion (Animations).
+  - Zustand (State management for real-time data and UI state).
+- **Backend**:
+  - Supabase (PostgreSQL database for organizations, users, doctors, appointments, departments,
+    patient records).
+- **Authentication**:
+  - Clerk (User and organization authentication, webhooks for data sync).
+- **Billing**:
+  - Paytm SDK (Payment processing).
+- **Deployment**:
+  - PWA setup for installable app and push notifications.
+
+### 3.2 Database Schema (Supabase)
+
+- **Organizations**:
+  - `id` (text, primary key, Clerk organization ID)
+  - `name` (varchar)
+  - `billing_status` (varchar)
+  - `created_at` (timestamp)
+- **Users**:
+  - `id` (text, primary key, Clerk user ID)
+  - `organization_id` (text, foreign key to `Organizations.id`)
+  - `email` (varchar)
+  - `role` (varchar)
+  - `created_at` (timestamp)
+- **Doctors**:
+  - `id` (text, primary key, autogenerated)
+  - `organization_id` (text, foreign key to `Organizations.id`)
+  - `department_id` (uuid, foreign key to `Departments.id`)
+  - `name` (varchar)
+  - `contact` (varchar)
+  - `specialization` (varchar)
+- **Departments**:
+  - `id` (uuid, primary key)
+  - `organization_id` (text, foreign key to `Organizations.id`)
+  - `name` (varchar)
+- **Appointments**:
+  - `id` (uuid, primary key)
+  - `organization_id` (text, foreign key to `Organizations.id`)
+  - `doctor_id` (text, foreign key to `Doctors.id`)
+  - `patient_id` (uuid, foreign key to `Patients.id`)
+  - `date` (date)
+  - `time` (time)
+  - `status` (varchar)
+- **Patients**:
+  - `id` (uuid, primary key)
+  - `phone_number` (varchar)
+  - `name` (varchar)
+  - `date_of_birth` (date)
+  - `blood_group` (varchar)
+- **Patient_Records**:
+  - `id` (uuid, primary key)
+  - `patient_id` (uuid, foreign key to `Patients.id`)
+  - `medical_history` (text)
+  - `last_updated` (timestamp)
+- **Analytics_Logs**:
+  - `id` (uuid, primary key)
+  - `organization_id` (text, foreign key to `Organizations.id`)
+  - `metric_type` (varchar)
+  - `value` (integer)
+  - `timestamp` (timestamp)
+
+## 4. Milestones and Timeline
+
+### 4.1 Week 1: Foundation and Core Features
+
+- **Tasks**:
+  - Set up PWA with notification support.
+  - Configure Supabase database and schema with text IDs for Clerk compatibility.
+  - Integrate Clerk for authentication and webhook for syncing organizations/users.
+  - Implement Zustand stores for real-time appointments, analytics, UI state (popups), and patient
+    search caching.
+  - Develop dashboard UI with real-time analytics cards and today's appointments table (with
+    actions), using Zustand for state management.
+  - Create doctors page with listing, add/edit popups, integrated with Zustand UI store.
+  - Create appointments page with listing, add/edit popups (with patient search), actions, and
+    real-time updates, using Zustand for appointments and patient state.
+  - Create appointment details page.
+  - Build analytics page with detailed metrics and CSV/PDF export functionality, using Zustand for
+    analytics state.
+- **Deliverables**:
+  - Functional PWA app.
+  - Supabase database with updated schema.
+  - Clerk authentication and webhook integration.
+  - Zustand-integrated state management for core features.
+  - Dashboard, doctors, appointments, appointment details, and analytics pages.
+
+### 4.2 Week 2: Billing and Support
+
+- **Tasks**:
+  - Integrate Paytm SDK for organization billing.
+  - Create help page with contact email (support@healthdrive.in).
+- **Deliverables**:
+  - Billing system for organizations.
+  - Help page for support.
+
+## 5. Assumptions and Constraints
+
+- **Assumptions**:
+  - Facilities have stable internet for real-time features.
+  - Users are familiar with web-based applications.
+  - Paytm SDK supports required billing features.
+- **Constraints**:
+  - Two-week timeline for initial MVP.
+  - Patient record access limited to phone number-based authentication.
+  - Dependency on third-party services (Clerk, Supabase, Paytm).
+
+## 6. Risks and Mitigation
+
+- **Risk**: Delays in third-party integrations (Clerk, Paytm).
+  - **Mitigation**: Allocate buffer time in Week 1 for integration testing.
+- **Risk**: Real-time performance issues with Supabase.
+  - **Mitigation**: Optimize database queries and use Supabase real-time subscriptions with Zustand
+    for efficient state updates.
+- **Risk**: Complex UI/UX for patient search and analytics export.
+  - **Mitigation**: Use Shadcn UI for consistent, reusable components and Zustand for centralized
+    state management.
+
+## 7. Success Criteria
+
+- Fully functional PWA with push notifications.
+- Real-time appointment and analytics updates managed via Zustand.
+- Secure patient record access via phone numbers with updated patient fields.
+- Operational billing system.
+- User-friendly dashboard, appointment (with actions and details page), doctor, and analytics pages.
+- Support page with clear contact information.
+
+## 8. Stakeholders
+
+- **Product Owner**: Defines feature priorities and validates deliverables.
+- **Development Team**: Implements features using specified tech stack.
+- **Healthcare Facilities**: End-users providing feedback.
+- **Support Team**: Handles inquiries via support@healthdrive.in.
+
+## 9. Approval
+
+This PRD requires approval from the product owner before development begins. Any changes to scope or
+timeline will be documented and re-approved.

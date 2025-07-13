@@ -1,0 +1,12 @@
+# Run build and type checking before push
+echo "🔍 Running pre-push checks..."
+
+# Check if build succeeds
+echo "📦 Checking if build succeeds..."
+npm run build
+
+# Run type checking
+echo "🔧 Running TypeScript type checking..."
+npm run type-check
+
+echo "✅ Pre-push checks completed successfully!" 

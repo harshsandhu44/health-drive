@@ -1,20 +1,17 @@
-import { UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
-const Home = async () => {
-  const { orgId } = await auth();
-
-  // If user is authenticated and part of an organization, redirect to dashboard
-  if (orgId) {
-    redirect("/dashboard");
-  }
-
+export default async function HomePage() {
   return (
-    <main>
-      <UserButton />
-    </main>
+    <div>
+      <h1>Welcome to Health Drive</h1>
+      <SignedOut>
+        <div>
+          <h2>Sign in to get started</h2>
+          <p>Sign in to access your account and start using Health Drive.</p>
+          <Link href="/sign-in">Sign in</Link>
+        </div>
+      </SignedOut>
+    </div>
   );
-};
-
-export default Home;
+}

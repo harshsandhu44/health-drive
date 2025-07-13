@@ -1,11 +1,13 @@
-import { PropsWithChildren } from "react";
+import { ReactNode } from "react";
 
-const AuthLayout = ({ children }: PropsWithChildren) => {
+interface AuthLayoutProps {
+  children: ReactNode;
+}
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <main className="flex h-screen w-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center">
       {children}
-    </main>
+    </div>
   );
-};
-
-export default AuthLayout;
+}

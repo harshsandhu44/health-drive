@@ -1,14 +1,15 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
-import { Toaster } from "sonner";
-import { RootProvider } from "@/components/providers";
-import { ServiceWorkerRegistration } from "@/components/shared/service-worker-registration";
+
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration";
+import * as CONSTANTS from "@/lib/contants";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "HealthDrive by Vylune",
-  description:
-    "HealthDrive solves the problem of healthcare data management. We are on a mission to help you manage data on your own terms.",
+  title: CONSTANTS.TITLE,
+  description: CONSTANTS.DESCRIPTION,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -34,12 +35,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ServiceWorkerRegistration />
-        <RootProvider>{children}</RootProvider>
-        <Toaster position="top-right" />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body>
+          <ServiceWorkerRegistration />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

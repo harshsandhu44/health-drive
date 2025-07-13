@@ -1,125 +1,324 @@
-# Health Drive
+# Health Drive 🏥
 
-## 1. Executive Summary
+A comprehensive healthcare management platform built with Next.js 15, React 19, and TypeScript.
+Health Drive provides a complete solution for healthcare facilities to manage doctors, patients,
+appointments, and analytics in a modern, secure environment.
 
-This PRD outlines the Minimum Viable Product (MVP) for a B2B SaaS platform designed for healthcare facilities. The platform streamlines appointment management, department organization, doctor management, patient communication, and subscription plan management. The MVP leverages Next.js (App Router, TypeScript), Clerk for authentication and organization metadata, Supabase for the database, Twilio for messaging (future phase), shadcn/ui with Tailwind CSS for UI, and Framer Motion for animations. A `doctors` table tracks doctor details, including specialization, and patient associations. The `patients` table allows cross-organization access by removing `organization_id` and includes a `medical_records` JSONB field for flexible medical data storage. Billing is handled manually by admins setting plan details in Clerk, logged in Supabase.
+## ✨ Core Features
 
-## 2. Objectives
+### 🏥 **Healthcare Management**
 
-- Enable healthcare facilities to manage patient appointments efficiently.
-- Organize departments and doctors within facilities.
-- Allow cross-organization access to patient data with secure controls.
-- Facilitate appointment-related communication with patients via SMS (future phase).
-- Provide subscription plans (Starter, Pro, Business) managed manually by admins.
-- Deliver a secure, scalable, and user-friendly platform for healthcare administrators.
+- **👨‍⚕️ Doctor Management** - Complete CRUD operations for healthcare providers with specializations
+- **👥 Patient Management** - Comprehensive patient records with search and filtering capabilities
+- **📅 Appointment System** - Advanced scheduling with dual creation modes (new/existing patients)
+- **📊 Healthcare Analytics** - Real-time insights and performance metrics
+- **🔍 Advanced Search** - Find patients by name, phone, or other criteria instantly
 
-## 3. Target Audience
+### 🔧 **Technical Features**
 
-- Healthcare facility administrators (e.g., hospitals, clinics).
-- Department heads and scheduling staff.
-- Doctors and support staff interacting with the platform.
+- **📱 Progressive Web App (PWA)** - Works offline and can be installed on devices
+- **🔐 Multi-tenant Authentication** - Organization-based access control with Clerk
+- **📊 Real-time Data** - Live updates with Supabase integration and Row Level Security
+- **🎨 Modern UI** - Professional healthcare interface with Radix UI and Tailwind CSS
+- **♿ Accessibility** - WCAG compliant components for healthcare compliance
+- **📱 Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
 
-## 4. Key Features
+## 🏗️ Application Architecture
 
-### 4.1 Appointment Management
+### 📋 **Page Structure**
 
-- **Description**: Facilities can create, update, cancel, and view patient appointments.
-- **Functionality**:
-  - Admins and doctors schedule appointments with a doctor (identified by UUID from `doctors` table), specifying a datetime, patient details, and optional note.
-  - Patients identified by name, phone number, optional email, and optional medical records.
-  - Appointment status: Pending, Confirmed, Cancelled, Completed.
-  - View appointments by day, week, or month in a calendar interface.
-- **Technical Requirements**:
-  - Store appointments in Supabase: `id`, `patient_id` (UUID), `doctor_id` (UUID, fk to doctors.id), `appointment_datetime` (TIMESTAMP WITH TIME ZONE), `status`, `organization_id` (TEXT, Clerk org ID), `created_at`, `updated_at`, `note` (TEXT, nullable).
-  - Calendar UI with shadcn/ui components and Tailwind CSS.
-  - Framer Motion for smooth calendar navigation transitions.
-  - Server Actions for data fetching and mutations, calling API routes.
+- **🏠 Dashboard** - Overview with key metrics, today's appointments, and quick actions
+- **📅 Appointments** - Complete appointment management with status tracking and scheduling
+- **👨‍⚕️ Doctors** - Healthcare provider management with specializations and contact details
+- **👥 Patients** - Patient records management with search and demographic tracking
+- **📊 Analytics** - Comprehensive insights and performance metrics for the healthcare facility
 
-### 4.2 Department Management
+### 🔄 **Appointment Workflows**
 
-- **Description**: Facilities can organize departments to group activities.
-- **Functionality**:
-  - Create, update, and delete departments (e.g., Cardiology, Pediatrics).
-  - View department details.
-- **Technical Requirements**:
-  - Supabase table: `departments` (`id`, `name`, `organization_id` (TEXT), `created_at`, `updated_at`).
-  - UI with shadcn/ui for department CRUD operations.
-  - Role-based access via Clerk organization memberships (`admin` for management, `member` for viewing).
-  - Server Actions for CRUD operations.
+- **New Patient + Appointment** - Create patient record and schedule appointment in one workflow
+- **Existing Patient + Appointment** - Quick appointment scheduling for existing patients with
+  search
+- **Appointment Management** - Update status, modify details, and track appointment lifecycle
+- **Status Tracking** - Real-time status updates (Pending → Confirmed → Completed/Cancelled)
 
-### 4.3 Doctor Management
+## 🚀 Tech Stack
 
-- **Description**: Manage doctors within facilities, tracking associated patients and specialization.
-- **Functionality**:
-  - Admins create, update, and delete doctors with name, phone number, optional address, and optional specialization.
-  - Automatically track patients associated with each doctor via appointments.
-  - View doctor details, including specialization, and patient lists.
-- **Technical Requirements**:
-  - Supabase table: `doctors` (`id` (UUID), `name` (TEXT), `phone_number` (TEXT), `address` (TEXT, nullable), `organization_id` (TEXT), `patient_ids` (UUID[], nullable), `specialization` (TEXT, nullable), `created_at`, `updated_at`).
-  - UI with shadcn/ui for doctor CRUD operations.
-  - Trigger to update `patient_ids` based on appointments.
-  - Server Actions for CRUD operations, restricted to admins.
+### **Frontend & Framework**
 
-### 4.4 Staff Management
+- **Framework**: [Next.js 15](https://nextjs.org/) with App Router and React 19
+- **Language**: [TypeScript](https://www.typescriptlang.org/) with strict mode
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with custom healthcare theme
+- **UI Components**: [Radix UI](https://www.radix-ui.com/) with shadcn/ui patterns
 
-- **Description**: Manage staff via Clerk organization memberships.
-- **Functionality**:
-  - Admins invite users to the organization with roles (`admin`, `member`).
-  - Staff view their schedules; admins manage all staff.
-  - No Supabase table for staff; data stored in Clerk (user details, organization membership roles).
-- **Technical Requirements**:
-  - Clerk organization membership roles: `admin` (full access), `member` (doctors/staff with limited access).
-  - Clerk API to fetch user details (name, phone) and membership roles.
-  - Sync user creation with organization membership via Clerk webhooks.
+### **Backend & Database**
 
-### 4.5 Patient Management
+- **Database**: [Supabase](https://supabase.com/) PostgreSQL with real-time subscriptions
+- **Authentication**: [Clerk](https://clerk.com/) with organization-based multi-tenancy
+- **API**: Next.js API routes with TypeScript and server actions
+- **Security**: Row Level Security (RLS) policies for data isolation
 
-- **Description**: Manage patient data accessible across organizations, including medical records.
-- **Functionality**:
-  - Create, update, and view patients with name, phone number, optional email, and optional medical records.
-  - Medical records stored as JSONB with keys: `diagnoses`, `medications`, `allergies`, `immunizations`, `lab_results`, `visit_history`.
-  - All authenticated users can view patients; admins and doctors can manage patients.
-- **Technical Requirements**:
-  - Supabase table: `patients` (`id` (UUID), `name` (TEXT), `email` (TEXT, nullable), `phone` (TEXT), `medical_records` (JSONB, nullable), `created_at`, `updated_at`).
-  - UI with shadcn/ui for patient CRUD operations, including JSON input for medical records.
-  - Server Actions for patient management, with role-based access via Clerk API.
+### **Development & Quality**
 
-### 4.6 Patient Messaging
+- **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) validation
+- **State Management**: Zustand stores with React Query for server state
+- **Code Quality**: ESLint, Prettier, TypeScript strict mode, Husky git hooks
+- **Testing**: TypeScript compilation and linting enforcement
 
-- **Description**: Send appointment reminders and updates via SMS (future phase).
-- **Functionality**:
-  - Automated SMS for confirmations, reminders (24 hours prior), and cancellations.
-  - Manual messaging by admins/doctors for custom updates.
-  - Message templates (e.g., "Your appointment with Dr. [Name] on [Datetime] is confirmed.").
-- **Technical Requirements**:
-  - Twilio API for SMS delivery (future phase).
-  - Supabase edge function to trigger Twilio on appointment CRUD.
-  - Supabase table: `message_logs` (`id`, `appointment_id`, `patient_phone`, `message`, `status`, `organization_id` (TEXT), `created_at`).
+## 🛠️ Getting Started
 
-### 4.7 Subscription Plan Management
+### Prerequisites
 
-- **Description**: Facilities subscribe to Starter, Pro, or Business plans, manually set by admins in Clerk organization metadata, with records logged in Supabase.
-- **Functionality**:
-  - **Plans**:
-    - **Starter**: Up to 5 staff, 100 appointments/month, 100 SMS/month.
-    - **Pro**: Up to 20 staff, 500 appointments/month, 500 SMS/month, priority support.
-    - **Business**: Unlimited staff, 2000 appointments/month, 2000 SMS/month, dedicated support.
-  - Admins manually update plan details (`plan`, `plan_expires_at`, `plan_status`, `transaction_id`) via an admin UI.
-  - Plan limits enforced (e.g., block appointment/staff creation if limit exceeded).
-  - Plan status (`active`, `inactive`, `expired`) updated based on `plan_expires_at`.
-- **Technical Requirements**:
-  - Clerk organization public metadata: `{ address: string, phone: string, plan: "starter" | "pro" | "business", plan_expires_at: string, plan_status: "active" | "inactive" | "expired" }`.
-  - Clerk organization private metadata: `{ transaction_id: string }`.
-  - Supabase table: `billing_logs` (`id`, `organization_id` (TEXT), `plan`, `amount`, `paytm_transaction_id`, `status`, `created_at`).
-  - Admin UI for manual plan updates using Clerk API and Server Actions.
-  - Supabase edge function to check `plan_expires_at` daily and update `plan_status` via Clerk API.
-  - UI for plan selection, billing history, and plan status using shadcn/ui components.
+- Node.js 18+ and npm/yarn/pnpm
+- Git
 
-## 5. Technical Stack
+### Installation
 
-- **Frontend**: Next.js (App Router, TypeScript, src directory), shadcn/ui, Tailwind CSS, Framer Motion.
-- **Backend**: Supabase (PostgreSQL, edge functions).
-- **Authentication**: Clerk.js with organization metadata and membership roles.
-- **Messaging**: Twilio for SMS (future phase).
-- **Billing**: Manual plan assignment via Clerk API (Paytm deferred to future phase).
-- **Hosting**: Vercel for Next.js, Supabase for database.
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd health-drive
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
+
+3. **Set up environment variables**
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Fill in your environment variables (Clerk, Supabase, etc.)
+
+4. **Run the development server**
+
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
+
+5. **Open your browser** Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📝 Available Scripts
+
+| Script                 | Description                             |
+| ---------------------- | --------------------------------------- |
+| `npm run dev`          | Start development server with Turbopack |
+| `npm run build`        | Build the application for production    |
+| `npm run start`        | Start the production server             |
+| `npm run lint`         | Run ESLint to check for issues          |
+| `npm run lint:fix`     | Run ESLint and fix auto-fixable issues  |
+| `npm run format`       | Format code with Prettier               |
+| `npm run format:check` | Check if code is formatted correctly    |
+| `npm run type-check`   | Run TypeScript type checking            |
+| `npm run pre-commit`   | Run all checks (types, lint, format)    |
+
+### 🗄️ **Database Scripts**
+
+| Script                                      | Description                                    |
+| ------------------------------------------- | ---------------------------------------------- |
+| `npx supabase start`                        | Start local Supabase instance                  |
+| `npx supabase stop`                         | Stop local Supabase instance                   |
+| `npx supabase reset`                        | Reset database with fresh schema and seed data |
+| `npx supabase db push`                      | Push schema changes to remote database         |
+| `npx supabase gen types typescript --local` | Generate TypeScript types from database        |
+
+## 🧰 Development Workflow
+
+### Code Quality
+
+This project uses several tools to maintain high code quality:
+
+- **ESLint**: Linting with rules for TypeScript, React, accessibility, and imports
+- **Prettier**: Code formatting with Tailwind CSS class sorting
+- **TypeScript**: Static type checking
+- **Husky**: Git hooks for automated code quality enforcement
+
+### Git Hooks
+
+Automated quality checks run at different Git stages:
+
+- **pre-commit**: Type checking, linting with auto-fix, and formatting
+- **pre-push**: Production build test and type checking
+- **commit-msg**: Enforces conventional commit message format
+
+#### Conventional Commits
+
+All commit messages must follow the format: `type(scope): description`
+
+**Valid types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`,
+`revert`
+
+**Examples**:
+
+```bash
+feat(auth): add user authentication
+fix(ui): resolve button styling issue
+docs: update README installation steps
+chore: update dependencies
+```
+
+### Best Practices
+
+1. **Run pre-commit checks**:
+
+   ```bash
+   npm run pre-commit
+   ```
+
+2. **Use TypeScript strictly**: Define proper types for all props and functions
+
+3. **Follow naming conventions**:
+   - Components: PascalCase (`UserProfile.tsx`)
+   - Files/folders: kebab-case (`user-profile/`)
+   - Functions/variables: camelCase (`getUserData`)
+
+4. **Component organization**:
+   ```
+   src/
+   ├── app/                    # Next.js App Router
+   │   ├── (auth)/            # Authentication pages
+   │   ├── (protected)/       # Protected routes with layouts
+   │   │   ├── dashboard/     # Dashboard page and components
+   │   │   ├── appointments/  # Appointments management
+   │   │   ├── doctors/       # Doctors management
+   │   │   ├── patients/      # Patients management
+   │   │   └── analytics/     # Analytics dashboard
+   │   └── api/               # API routes and webhooks
+   ├── components/            # Reusable components
+   │   ├── ui/               # Base UI components (shadcn/ui)
+   │   ├── forms/            # Form components
+   │   ├── modals/           # Modal components
+   │   ├── tables/           # Data table components
+   │   ├── cards/            # Card components
+   │   ├── sidebars/         # Navigation components
+   │   └── headers/          # Header components
+   ├── hooks/                # Custom React hooks
+   ├── lib/                  # Utilities and configurations
+   └── middleware.ts         # Clerk authentication middleware
+   ```
+
+## 🎨 Healthcare UI System
+
+The project uses a comprehensive healthcare-focused design system:
+
+### **Design Foundation**
+
+- **Radix UI**: Headless, accessible components for healthcare compliance
+- **Tailwind CSS**: Utility-first styling with healthcare color palette
+- **CVA**: Class variance authority for consistent component variants
+- **Lucide React**: Medical and healthcare-specific icons
+
+### **Healthcare Components**
+
+- **Forms**: Patient intake, appointment scheduling, doctor management
+- **Tables**: Patient lists, appointment schedules, analytics data
+- **Cards**: Status summaries, metric displays, patient cards
+- **Modals**: Appointment creation/editing, patient management
+- **Navigation**: Healthcare-specific sidebar and navigation
+- **Data Display**: Medical records, appointment status, analytics charts
+
+### **Accessibility & Compliance**
+
+- WCAG 2.1 AA compliant components
+- Healthcare industry color contrast standards
+- Keyboard navigation for all interactive elements
+- Screen reader optimized for medical data
+
+## 📱 PWA Features
+
+Health Drive is built as a Progressive Web App with:
+
+- **Offline functionality**: Core features work without internet
+- **Install prompt**: Users can install the app on their devices
+- **Push notifications**: Real-time updates and reminders
+- **Background sync**: Data syncs when connection is restored
+
+## 🔧 Configuration Files
+
+- `eslint.config.mjs`: ESLint configuration with comprehensive rules
+- `.prettierrc`: Prettier configuration for code formatting
+- `tsconfig.json`: TypeScript compiler configuration
+- `tailwind.config.js`: Tailwind CSS customization
+- `next.config.ts`: Next.js configuration with PWA support
+
+## 🗄️ Database Schema
+
+### **Core Entities**
+
+- **Organizations** - Multi-tenant isolation with billing status
+- **Users** - Role-based access (admin, staff, doctor) with organization linking
+- **Doctors** - Healthcare providers with specializations and contact info
+- **Patients** - Patient records with demographics and medical info
+- **Appointments** - Scheduling system with status tracking and notes
+
+### **Security Features**
+
+- **Row Level Security (RLS)** - Organization-based data isolation
+- **Service Role Actions** - Secure server-side operations
+- **Real-time Subscriptions** - Live data updates across clients
+- **Audit Logging** - Analytics logs for performance tracking
+
+## 📊 Key Features Implemented
+
+### ✅ **Complete CRUD Operations**
+
+- **Doctors**: Create, read, update, delete healthcare providers
+- **Patients**: Full patient management with search capabilities
+- **Appointments**: Comprehensive scheduling and status management
+
+### ✅ **Advanced Workflows**
+
+- **Dual Creation Modes**: New patient + appointment or existing patient scheduling
+- **Real-time Updates**: Live appointment status changes
+- **Search & Filter**: Patient search by name, phone, demographics
+- **Analytics Dashboard**: Healthcare facility performance insights
+
+### ✅ **Healthcare-Specific Features**
+
+- **Status Tracking**: Pending → Confirmed → Completed/Cancelled workflows
+- **Patient Demographics**: Age calculation, blood group tracking
+- **Doctor Specializations**: Medical specialty management
+- **Appointment Notes**: Clinical notes and observations
+
+## 📚 Project Documentation
+
+Detailed documentation is available in the `docs/` directory:
+
+- [Project Requirements](./docs/project-requirements.md) - Feature specifications and requirements
+- [Database Schema](./docs/database-schema.md) - Complete database structure and relationships
+- [Business Model](./docs/business-model.md) - Healthcare business logic and workflows
+- [Data Flow](./docs/data-flow.md) - Application data flow and state management
+- [Wireframes](./docs/wireframes.md) - UI/UX design specifications
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Run pre-commit checks (`npm run pre-commit`)
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 🔗 Useful Links
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [React Documentation](https://reactjs.org/docs)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Radix UI Documentation](https://www.radix-ui.com/docs)
