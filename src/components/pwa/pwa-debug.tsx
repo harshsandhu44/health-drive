@@ -228,11 +228,16 @@ export function PWADebug() {
             );
             results.push(`📊 Icons count: ${manifest.icons?.length || 0}`);
             if (manifest.icons && manifest.icons.length > 0) {
-              manifest.icons.forEach((icon: { src: string; sizes?: string; type?: string }, index: number) => {
-                results.push(
-                  `   Icon ${index + 1}: ${icon.src} (${icon.sizes || "no size"}, ${icon.type || "no type"})`
-                );
-              });
+              manifest.icons.forEach(
+                (
+                  icon: { src: string; sizes?: string; type?: string },
+                  index: number
+                ) => {
+                  results.push(
+                    `   Icon ${index + 1}: ${icon.src} (${icon.sizes || "no size"}, ${icon.type || "no type"})`
+                  );
+                }
+              );
             }
             manifestFound = true;
             break;

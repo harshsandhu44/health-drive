@@ -109,7 +109,8 @@ export function PWAStatus() {
   const playTestSound = () => {
     // Create and play a test beep sound
     const audioContext = new (window.AudioContext ||
-      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
