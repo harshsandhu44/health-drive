@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -42,6 +43,35 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
-.env*.local
 
-certificates
+# PWA service worker files (auto-generated)
+/public/sw.js
+/public/workbox-*.js
+
+# supabase local development
+/supabase/.temp/
+/supabase/.branches/
+/supabase/functions/_generated/
+/supabase/functions/.vscode/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# certificates and secrets
+certificates/
+*.key
+*.crt
+*.p12
