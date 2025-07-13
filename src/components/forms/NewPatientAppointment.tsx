@@ -46,7 +46,7 @@ const formSchema = z.object({
     date: z
       .date()
       .min(new Date())
-      .max(new Date().setDate(new Date().getDate() + 30)),
+      .max(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
     time: z.string().min(5).max(5),
     doctor: z.string(),
   }),

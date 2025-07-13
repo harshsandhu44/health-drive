@@ -92,7 +92,8 @@ export default function AnalyticsPage() {
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            // eslint-disable-next-line react/no-array-index-key
+            <Card key={`loading-card-${i}`} className="animate-pulse">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <div className="h-4 w-24 rounded bg-gray-200"></div>
                 <div className="h-4 w-4 rounded bg-gray-200"></div>

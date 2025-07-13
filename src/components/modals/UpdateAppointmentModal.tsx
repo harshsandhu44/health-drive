@@ -114,7 +114,12 @@ export function UpdateAppointmentModal({
         formData.append("status", data.status);
         formData.append("notes", data.notes || "");
 
-        const result = await updateAppointment(appointment.id!, formData);
+        if (!appointment.id) {
+          toast.error("Invalid appointment ID");
+          return;
+        }
+        
+        const result = await updateAppointment(appointment.id, formData);
 
         if (!result.success) {
           toast.error(result.error || "Failed to update appointment");
